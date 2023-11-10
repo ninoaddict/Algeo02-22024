@@ -1,12 +1,12 @@
 #pragma GCC optimize("03")
 #include <bits/stdc++.h>
-#include "lib\json.hpp"
+#include "lib/json/single_include/nlohmann/json.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
-#include "lib\stb_image.h"
+#include "lib/stb_image.h"
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "lib\stb_image_write.h"
+#include "lib/stb_image_write.h"
 
 using namespace std;
 using namespace std::chrono;
@@ -15,26 +15,15 @@ namespace fs = std::filesystem;
 
 const int channel = 256;
 const double pi = acos(-1.0);
-const vector<int> thetas = {0};
+const vector<int> dxs = {0, -1, -1, -1, 0};
+const vector<int> dys = {1, 1, 0, -1, -1};
 const vector<int> distances = {1};
 const string abspath = "../public/images/dataset";
-const string jsonFileName = "saved.json";
+const string preProcessJsonFileName = "texture.json";
 
 double hist[channel][channel];
-// nlohmann ribet struct to json
-/*struct textV{
-    double contrast;
-    double homogeneity;
-    double entropy;
-    textV(double c, double h, double e){
-        contrast = c;
-        homogeneity = h;
-        entropy = e;
-    }
-    ~textV(){}
-};*/
 
-vector< vector< vector< vector<double> > > > res;
+vector< double > res;
 
 void img_to_texture_vector(string path){
     int width, height, ori, desired = 3;
@@ -55,12 +44,10 @@ void img_to_texture_vector(string path){
         unsigned char conv = valY;
         *pg = conv;
     }
-    vector< vector< vector<double> > > thisImgTextV;
     for(auto &d: distances){
-        vector< vector<double> > temp;
-        for(auto &theta: thetas){
-            int dx = round(-sin((theta * pi) / 180.0));
-            int dy = round(cos((theta * pi) / 180.0));
+        assert(dxs.size() == dys.size());
+        for(int i = 0; i < (int)dxs.size(); ++i){
+            int dx = dxs[i], dy = dys[i];
             dx *= d;
             dy *= d;
             for(int i = 0; i < channel; ++i){
@@ -93,11 +80,11 @@ void img_to_texture_vector(string path){
                     if (hist[i][j] != 0.0) entropy += hist[i][j] * -log(hist[i][j]);
                 }
             }
-            temp.push_back({contrast, homogeneity, entropy});
+            res.push_back(contrast);
+            res.push_back(homogeneity);
+            res.push_back(entropy);
         }
-        thisImgTextV.push_back(temp);
     }
-    res.push_back(thisImgTextV);
 }
 
 int main(){
@@ -107,7 +94,7 @@ int main(){
     }
     json j;
     j = res;
-    ofstream file(jsonFileName);
+    ofstream file(preProcessJsonFileName);
     file << j; 
     auto en = high_resolution_clock::now();
     auto dur = duration_cast<milliseconds>(en - beg);
