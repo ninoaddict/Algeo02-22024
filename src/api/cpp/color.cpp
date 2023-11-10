@@ -96,10 +96,10 @@ void img_to_color_vector(string path)
     int h[4];
     w[0] = 0;
     h[0] = 0;
-    w[1] = width / 3;
-    h[1] = height / 3;
-    w[2] = width * 2 / 3;
-    h[2] = height * 2 / 3;
+    w[1] = width / 4;
+    h[1] = height / 4;
+    w[2] = width * 3 / 4;
+    h[2] = height * 3 / 4;
     w[3] = width;
     h[3] = height;
     int idxCnt = 0;
@@ -197,7 +197,7 @@ int main()
 
     ofstream file(jsonFileName);
     file << jArray;
-
+    
     auto en = high_resolution_clock::now();
     auto dur = duration_cast<milliseconds>(en - beg);
     cout << "Finished calculation in " << dur.count() << "ms" << endl;
