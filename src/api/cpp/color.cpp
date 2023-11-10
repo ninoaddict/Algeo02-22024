@@ -24,14 +24,19 @@ const string jsonFileName = "color.json";
 std::mutex stbImageMutex;
 std::mutex vectorAdd;
 
-// n x 9 x 72
-vector<vector<vector<int>>> res;
+typedef struct
+{
+    string name;
+    vector<vector<int>> vec;
+} SendJson;
+
+vector<SendJson> res;
 vector<string> paths;
 
 int getHIndex(double H)
 {
     int idxH;
-    if (316 <= H && H <= 360)
+    if (316 <= H && H <= 360 || H == 0)
         idxH = 0;
     else if (1 <= H && H <= 25)
         idxH = 1;
@@ -72,11 +77,6 @@ int getVIndex(double V)
     else if (0.7 <= V && V <= 1)
         idxV = 2;
     return idxV;
-}
-
-void addVec(vector<vector<int>> hist){
-    std::lock_guard<std::mutex> lock(vectorAdd);
-    res.push_back(hist);
 }
 
 unsigned char *getImage(string path, int *width, int *height)
@@ -125,18 +125,32 @@ void img_to_color_vector(string path)
                     cMin = min(R, G);
                     cMin = min(cMin, B);
                     delta = cMax - cMin;
-                    if (!delta)
+
+                    if (delta == 0)
                         H = 0;
                     else if (cMax == R)
-                        H = 60 * (((int)((G - B) / delta)) % 6);
+                    {
+                        H = (G - B) / delta;
+                        if (H < 0)
+                            H += 6;
+                        H *= 60;
+                    }
                     else if (cMax == G)
-                        H = 60 * (((B - R) / delta) + 2);
+                    {
+                        H = (B - R) / delta;
+                        H += 2;
+                        H *= 60;
+                    }
                     else if (cMax == B)
-                        H = 60 * (((R - G) / delta) + 4);
-                    if (!cMax)
+                    {
+                        H = (R - G) / delta;
+                        H += 4;
+                        H *= 60;
+                    }
+                    if (cMax == 0)
                         S = 0;
                     else
-                        S = delta / cMax;
+                        S = (delta / cMax);
                     V = cMax;
                     int idxH = getHIndex(H), idxS = getSIndex(S), idxV = getVIndex(V);
                     hist[idxCnt][idxH * 9 + idxS * 3 + idxV]++;
@@ -146,7 +160,11 @@ void img_to_color_vector(string path)
         }
     }
     stbi_image_free(img);
-    addVec(hist);
+    std::lock_guard<std::mutex> lock(vectorAdd);
+    SendJson temp;
+    temp.name = path.substr(25);
+    temp.vec = hist;
+    res.push_back(temp);
 }
 
 int main()
@@ -158,9 +176,9 @@ int main()
         paths.push_back(entry.path().string());
     }
 
-    for (auto fileName : paths)
+    for (int i = 0; i < paths.size(); i++)
     {
-        threads.emplace_back(img_to_color_vector, fileName);
+        threads.emplace_back(img_to_color_vector, paths[i]);
     }
 
     for (auto &thread : threads)
@@ -168,11 +186,17 @@ int main()
         thread.join();
     }
 
-    std::lock_guard<std::mutex> lock(stbImageMutex);
-    json j;
-    j = res;
+    json jArray;
+    {
+        std::lock_guard<std::mutex> lock(vectorAdd);
+        for (const auto &kntl : res)
+        {
+            jArray.push_back({{"name", kntl.name}, {"vec", kntl.vec}});
+        }
+    }
+
     ofstream file(jsonFileName);
-    file << j;
+    file << jArray;
 
     auto en = high_resolution_clock::now();
     auto dur = duration_cast<milliseconds>(en - beg);
