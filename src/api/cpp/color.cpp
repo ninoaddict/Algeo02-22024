@@ -3,6 +3,8 @@
 #include <chrono>
 #include <string>
 #include <fstream>
+#include <mutex>
+#include <thread>
 #include "lib\json.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -19,8 +21,12 @@ namespace fs = std::filesystem;
 const string abspath = "../public/images/dataset";
 const string jsonFileName = "color.json";
 
+std::mutex stbImageMutex;
+std::mutex vectorAdd;
+
 // n x 9 x 72
 vector<vector<vector<int>>> res;
+vector<string> paths;
 
 int getHIndex(double H)
 {
@@ -68,11 +74,24 @@ int getVIndex(double V)
     return idxV;
 }
 
+void addVec(vector<vector<int>> hist){
+    std::lock_guard<std::mutex> lock(vectorAdd);
+    res.push_back(hist);
+}
+
+unsigned char *getImage(string path, int *width, int *height)
+{
+    std::lock_guard<std::mutex> lock(stbImageMutex);
+    int temp;
+    return stbi_load(path.c_str(), width, height, &temp, 3);
+}
+
 void img_to_color_vector(string path)
 {
+    int width, height;
+    unsigned char *img = getImage(path, &width, &height);
     vector<vector<int>> hist(9, vector<int>(72, 0));
-    int width, height, channels;
-    unsigned char *img = stbi_load(path.c_str(), &width, &height, &channels, 0);
+
     int w[4];
     int h[4];
     w[0] = 0;
@@ -126,36 +145,35 @@ void img_to_color_vector(string path)
             idxCnt++;
         }
     }
-    res.push_back(hist);
+    stbi_image_free(img);
+    addVec(hist);
 }
 
 int main()
 {
     auto beg = high_resolution_clock::now();
+    std::vector<std::thread> threads;
     for (const auto &entry : fs::directory_iterator(abspath))
     {
-        img_to_color_vector(entry.path().string());
+        paths.push_back(entry.path().string());
     }
-    string temp = "../public/images/dataset/0.jpg";
-    img_to_color_vector(temp);
+
+    for (auto fileName : paths)
+    {
+        threads.emplace_back(img_to_color_vector, fileName);
+    }
+
+    for (auto &thread : threads)
+    {
+        thread.join();
+    }
+
+    std::lock_guard<std::mutex> lock(stbImageMutex);
     json j;
     j = res;
     ofstream file(jsonFileName);
     file << j;
-    // for (int i = 0; i < res.size(); i++){
-    //     cout << "[";
-    //     for (int j = 0; j < 9; j++){
-    //         cout <<"[";
-    //         for (int k = 0; k < 72; k++){
-    //             cout << res[i][j][k];
-    //             if (k != 71) cout << ",";
-    //         }
-    //         cout << "]";
-    //         if (j != 8) cout << ",";
-    //     }
-    //     cout << "]";
-    //     cout << endl;
-    // }
+
     auto en = high_resolution_clock::now();
     auto dur = duration_cast<milliseconds>(en - beg);
     cout << "Finished calculation in " << dur.count() << "ms" << endl;
