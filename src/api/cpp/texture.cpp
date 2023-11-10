@@ -1,6 +1,6 @@
 #pragma GCC optimize("03")
 #include <bits/stdc++.h>
-#include "lib\json\single_include\nlohmann\json.hpp"
+#include "lib\json.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "lib\stb_image.h"
@@ -17,7 +17,7 @@ const int channel = 256;
 const double pi = acos(-1.0);
 const vector<int> thetas = {0};
 const vector<int> distances = {1};
-const string abspath = "src/api/public/images/dataset";
+const string abspath = "../public/images/dataset";
 const string jsonFileName = "saved.json";
 
 double hist[channel][channel];
