@@ -4,8 +4,8 @@
 #include <string>
 #include <fstream>
 #include <mutex>
-#include <thread>
-#include "lib\json.hpp"
+#include "lib/BS_thread_pool.hpp"
+#include "lib/json.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "lib/stb_image.h"
@@ -18,7 +18,7 @@ using namespace std::chrono;
 using json = nlohmann::json;
 namespace fs = std::filesystem;
 
-const string abspath = "../public/images/dataset";
+const string abspath = "public/images/dataset";
 const string jsonFileName = "color.json";
 
 std::mutex stbImageMutex;
@@ -31,26 +31,25 @@ typedef struct
 } SendJson;
 
 vector<SendJson> res;
-vector<string> paths;
 
 int getHIndex(double H)
 {
     int idxH;
-    if (316 <= H && H <= 360 || H == 0)
+    if (316 <= H && H <= 360)
         idxH = 0;
-    else if (1 <= H && H <= 25)
+    else if (0 <= H && H < 26)
         idxH = 1;
-    else if (26 <= H && H <= 40)
+    else if (26 <= H && H < 41)
         idxH = 2;
-    else if (41 <= H && H <= 120)
+    else if (41 <= H && H < 121)
         idxH = 3;
-    else if (121 <= H && H <= 190)
+    else if (121 <= H && H < 191)
         idxH = 4;
-    else if (191 <= H && H <= 270)
+    else if (191 <= H && H < 271)
         idxH = 5;
-    else if (271 <= H && H <= 295)
+    else if (271 <= H && H < 296)
         idxH = 6;
-    else if (295 <= H && H <= 315)
+    else if (296 <= H && H < 316)
         idxH = 7;
     return idxH;
 }
@@ -79,34 +78,29 @@ int getVIndex(double V)
     return idxV;
 }
 
-unsigned char *getImage(string path, int *width, int *height)
-{
-    std::lock_guard<std::mutex> lock(stbImageMutex);
-    int temp;
-    return stbi_load(path.c_str(), width, height, &temp, 3);
-}
-
 void img_to_color_vector(string path)
 {
-    int width, height;
-    unsigned char *img = getImage(path, &width, &height);
-    vector<vector<int>> hist(9, vector<int>(72, 0));
+    int width, height, temps;
+    unsigned char *img = stbi_load(path.c_str(), &width, &height, &temps, 3);
+    vector<vector<int>> hist(16, vector<int>(72, 0));
 
-    int w[4];
-    int h[4];
+    int w[5];
+    int h[5];
     w[0] = 0;
     h[0] = 0;
     w[1] = width / 4;
     h[1] = height / 4;
-    w[2] = width * 3 / 4;
-    h[2] = height * 3 / 4;
-    w[3] = width;
-    h[3] = height;
+    w[2] = width / 2;
+    h[2] = height / 2;
+    w[3] = width * 3 / 4;
+    h[3] = height * 3 / 4;
+    w[4] = width;
+    h[4] = height;
     int idxCnt = 0;
     unsigned char *p = img;
-    for (int wi = 0; wi < 3; wi++)
+    for (int wi = 0; wi < 4; wi++)
     {
-        for (int hi = 0; hi < 3; hi++)
+        for (int hi = 0; hi < 4; hi++)
         {
             for (int i = w[wi]; i < w[wi + 1]; i++)
             {
@@ -162,7 +156,7 @@ void img_to_color_vector(string path)
     stbi_image_free(img);
     std::lock_guard<std::mutex> lock(vectorAdd);
     SendJson temp;
-    temp.name = path.substr(25);
+    temp.name = path.substr(22);
     temp.vec = hist;
     res.push_back(temp);
 }
@@ -170,22 +164,23 @@ void img_to_color_vector(string path)
 int main()
 {
     auto beg = high_resolution_clock::now();
-    std::vector<std::thread> threads;
+    const int maxThreads = 8;
+    vector<string> paths;
+    BS::thread_pool pool(maxThreads);
     for (const auto &entry : fs::directory_iterator(abspath))
     {
         paths.push_back(entry.path().string());
     }
 
-    for (int i = 0; i < paths.size(); i++)
-    {
-        threads.emplace_back(img_to_color_vector, paths[i]);
-    }
-
-    for (auto &thread : threads)
-    {
-        thread.join();
-    }
-
+    pool.push_loop(paths.size(), 
+        [&paths](const int a, const int b)
+        {
+            for (int i = a; i < b; i++){
+                img_to_color_vector(paths[i]);
+            }
+        }
+    );
+    pool.wait_for_tasks();
     json jArray;
     {
         std::lock_guard<std::mutex> lock(vectorAdd);
@@ -197,7 +192,7 @@ int main()
 
     ofstream file(jsonFileName);
     file << jArray;
-    
+
     auto en = high_resolution_clock::now();
     auto dur = duration_cast<milliseconds>(en - beg);
     cout << "Finished calculation in " << dur.count() << "ms" << endl;
