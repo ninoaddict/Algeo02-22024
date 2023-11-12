@@ -20,7 +20,7 @@ const vector<int> dys = {1, 1, 0, -1, -1};
 const vector<int> distances = {1};
 const string abspath = "dataset";
 const string jsonNameFile = "texture.json";
-const string pathName = "dataset/0.jpg";
+const string pathName = "public/images/test";
 const string imgFileName = "0.jpg";
 const string savedJsonFileName = "resultTexture.json";
 const int numOfDimension = 3;
@@ -156,7 +156,9 @@ bool cmpcossim(const pair < string, double > &p1, const pair < string, double > 
 
 int main(){
     auto beg = high_resolution_clock::now();
-    img_to_texture_vector(pathName, imgFileName);
+    for (const auto &entry: fs::directory_iterator(pathName)){
+        img_to_texture_vector(entry.path().string(), "inputImage");
+    }
     ifstream file(jsonNameFile);
     json j = json::parse(file);
     vector < pair < string, double > > cossim;
