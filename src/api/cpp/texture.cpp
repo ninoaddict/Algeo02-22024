@@ -19,7 +19,7 @@ const double pi = acos(-1.0);
 const vector<int> dxs = {0, -1, -1, -1, 0};
 const vector<int> dys = {1, 1, 0, -1, -1};
 const vector<int> distances = {1};
-const string abspath = "dataset";
+const string abspath = "public/images/dataset";
 const string jsonFileName = "texture.json";
 
 vector< pair<string, string> > filepaths;

@@ -18,14 +18,20 @@ const double pi = acos(-1.0);
 const vector<int> dxs = {0, -1, -1, -1, 0};
 const vector<int> dys = {1, 1, 0, -1, -1};
 const vector<int> distances = {1};
-const string abspath = "dataset";
+const int lenDist = 1;
+const int dxSize = 5;
+const string abspath = "public/images/dataset";
 const string jsonNameFile = "texture.json";
-const string pathName = "public/images/test";
-const string imgFileName = "0.jpg";
-const string savedJsonFileName = "resultTexture.json";
+const string pathName = "../public/images/tes";
+const string imgFileName = "";
+const string savedJsonFileName = "textureResults.json";
 const int numOfDimension = 3;
 
-double hist[channel][channel];
+double hist[channel][channel], mean[lenDist * numOfDimension * dxSize];
+
+double sigma[lenDist * numOfDimension * dxSize], sum[lenDist * numOfDimension * dxSize];
+
+double afterSum[lenDist * numOfDimension * dxSize];
 
 namespace pairToJson {
     struct Image{
@@ -137,16 +143,16 @@ double cossinesim(const vector < double > &xa, const vector < double > &xb){
     double sum = 0.0;
     vector < double > a(xa.size(), 0.0);
     vector < double > b(xb.size(), 0.0);
-    double lena = vectorlength(xa);
-    double lenb = vectorlength(xb);
     for(int i = 0; i < (int)xa.size(); ++i){
-        a[i] = xa[i] / lena;
-        b[i] = xb[i] / lenb;
+        a[i] = ((xa[i] - mean[i]) / sigma[i]);
+        b[i] = ((xb[i] - mean[i]) / sigma[i]);
     }
     for(auto pa = a.begin(), pb = b.begin(); pa != a.end() && pb != b.end(); pa++, pb++){
         sum += (*pa) * (*pb);
     }
-    double ans = sum;
+    double lena = vectorlength(a);
+    double lenb = vectorlength(b);
+    double ans = sum / (lena * lenb);
     return ans;
 }
 
@@ -156,13 +162,33 @@ bool cmpcossim(const pair < string, double > &p1, const pair < string, double > 
 
 int main(){
     auto beg = high_resolution_clock::now();
-    for (const auto &entry: fs::directory_iterator(pathName)){
-        img_to_texture_vector(entry.path().string(), "inputImage");
+    for(const auto &entry: fs::directory_iterator(pathName)){
+        img_to_texture_vector(entry.path().string(), "queryfile");
     }
     ifstream file(jsonNameFile);
     json j = json::parse(file);
     vector < pair < string, double > > cossim;
-    int p1 = 0;
+    for(int i = 0; i < (int)j.size(); ++i){
+        indexed::index done;
+        indexed::from_json(j[i], done);
+        for(int k = 0; k < (int)done.vec.size(); ++k){
+            sum[k] += done.vec[k];
+        }
+    }
+    double numComp = j.size();
+    for(int k = 0; k < lenDist * numOfDimension * dxSize; ++k){
+        mean[k] = sum[k] / numComp;
+    }
+    for(int i = 0; i < (int)j.size(); ++i){
+        indexed::index done;
+        indexed::from_json(j[i], done);
+        for(int k = 0; k < (int)done.vec.size(); ++k){
+            afterSum[k] += (done.vec[k] - mean[k]) * (done.vec[k] - mean[k]);
+        }
+    }
+    for(int k = 0; k < lenDist * numOfDimension * dxSize; ++k){
+        sigma[k] = sqrt(afterSum[k] / (numComp - 1));
+    }
     for(int i = 0; i < (int)j.size(); ++i){
         indexed::index done;
         indexed::from_json(j[i], done);
