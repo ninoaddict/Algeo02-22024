@@ -151,6 +151,8 @@ void img_to_color_vector(string path)
     stbi_image_free(img);
 }
 
+int mult[16] = {1,1,1,1,1,4,4,1,1,4,4,1,1,1,1,1};
+
 double simp(vector<vector<int>> cmp){
     double rest = 0;
     for (int i = 0; i < 16; i++){
@@ -163,9 +165,9 @@ double simp(vector<vector<int>> cmp){
             bSum += hist[i][j] * hist[i][j];
         }
         double temp = sum/(sqrt(aSum) * sqrt(bSum));
-        rest += temp;
+        rest += temp * mult[i];
     }
-    rest /= 16;
+    rest /= 28;
     return rest;
 }
 

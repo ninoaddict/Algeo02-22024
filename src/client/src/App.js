@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import logo from './logo.svg';
+import Header from './components/Header'
 import './App.css';
 
 class App extends Component {
@@ -19,12 +20,13 @@ class App extends Component {
   }
   render(){
     return (
-      <div className="App">
-        <header className="App-header">
-        <img src = {logo} className="App-logo" alt="logo"></img>
-        <h1 className="App-title">{this.state.apiResponse}</h1>
-        </header>
-      </div>
+      // <div className="App">
+      //   <header className="App-header">
+      //   <img src = {logo} className="App-logo" alt="logo"></img>
+      //   <h1 className="App-title">{this.state.apiResponse}</h1>
+      //   </header>
+      // </div>
+      < Header />
     )
   }
 }
