@@ -1,6 +1,6 @@
 #pragma GCC optimize("03")
 #include <bits/stdc++.h>
-#include "lib/json/single_include/nlohmann/json.hpp"
+#include "json\single_include\nlohmann\json.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "lib/stb_image.h"
@@ -18,15 +18,20 @@ const double pi = acos(-1.0);
 const vector<int> dxs = {0, -1, -1, -1, 0};
 const vector<int> dys = {1, 1, 0, -1, -1};
 const vector<int> distances = {1};
-const string abspath = "dataset";
-const string jsonNameFile = "saved.json";
-const string imgFileName = "dataset/0.jpg";
-const string savedJsonFileName = "textureResult.json";
+const int lenDist = 1;
+const int dxSize = 5;
+const string abspath = "public/images/dataset";
+const string jsonNameFile = "texture.json";
+const string pathName = "../public/images/tes";
+const string imgFileName = "";
+const string savedJsonFileName = "textureResults.json";
 const int numOfDimension = 3;
 
-double hist[channel][channel];
+double hist[channel][channel], mean[lenDist * numOfDimension * dxSize];
 
-vector < double > res;
+double sigma[lenDist * numOfDimension * dxSize], sum[lenDist * numOfDimension * dxSize];
+
+double afterSum[lenDist * numOfDimension * dxSize];
 
 namespace pairToJson {
     struct Image{
@@ -42,7 +47,24 @@ namespace pairToJson {
     }
 }
 
-void img_to_texture_vector(string path){
+namespace indexed {
+    struct index{
+        string name;
+        vector< double > vec;
+    };
+    void to_json(json& j, const index& p) {
+        j = json{ {"name", p.name}, {"vector", p.vec}};
+    }
+    void from_json(const json& j, index& p) {
+        j.at("name").get_to(p.name);
+        j.at("vector").get_to(p.vec);
+    }
+}
+
+indexed::index indexedImage;
+
+void img_to_texture_vector(string path, string name){
+    double hist[channel][channel];
     int width, height, ori, desired = 3;
     unsigned char *img = stbi_load(path.c_str(), &width, &height, &ori, desired);
     if(img == NULL){
@@ -61,6 +83,7 @@ void img_to_texture_vector(string path){
         unsigned char conv = valY;
         *pg = conv;
     }
+    vector < double > done;
     for(auto &d: distances){
         assert(dxs.size() == dys.size());
         for(int i = 0; i < (int)dxs.size(); ++i){
@@ -94,14 +117,16 @@ void img_to_texture_vector(string path){
                 for (int j = 0; j < channel; ++j) {
                     contrast += hist[i][j] * (i - j) * (i - j);
                     homogeneity += (hist[i][j] / (1 + (i - j) * (i - j)));
-                    if (hist[i][j] != 0.0) entropy += hist[i][j] * -log(hist[i][j]);
+                    if (hist[i][j] != 0.0) entropy -= hist[i][j] * log(hist[i][j]);
                 }
             }
-            res.push_back(contrast);
-            res.push_back(homogeneity);
-            res.push_back(entropy);
+            done.push_back(contrast);
+            done.push_back(homogeneity);
+            done.push_back(entropy);
         }
     }
+    indexedImage.name = name;
+    indexedImage.vec = done;
 }
 
 double vectorlength(const vector < double > &x){
@@ -118,16 +143,16 @@ double cossinesim(const vector < double > &xa, const vector < double > &xb){
     double sum = 0.0;
     vector < double > a(xa.size(), 0.0);
     vector < double > b(xb.size(), 0.0);
-    double lena = vectorlength(xa);
-    double lenb = vectorlength(xb);
     for(int i = 0; i < (int)xa.size(); ++i){
-        a[i] = xa[i] / lena;
-        b[i] = xb[i] / lenb;
+        a[i] = ((xa[i] - mean[i]) / sigma[i]);
+        b[i] = ((xb[i] - mean[i]) / sigma[i]);
     }
     for(auto pa = a.begin(), pb = b.begin(); pa != a.end() && pb != b.end(); pa++, pb++){
         sum += (*pa) * (*pb);
     }
-    double ans = sum;
+    double lena = vectorlength(a);
+    double lenb = vectorlength(b);
+    double ans = sum / (lena * lenb);
     return ans;
 }
 
@@ -137,37 +162,49 @@ bool cmpcossim(const pair < string, double > &p1, const pair < string, double > 
 
 int main(){
     auto beg = high_resolution_clock::now();
-    try{
-        img_to_texture_vector(imgFileName);
-        ifstream file(jsonNameFile);
-        json j = json::parse(file);
-        int dxSize = dxs.size();
-        int dySize = dys.size();
-        int distSize = distances.size();
-        assert(dxSize == dySize);
-        vector< double > holder(dxSize * numOfDimension * distSize, 0.0);
-        vector < pair < string, double > > cossim;
-        int p1 = 0;
-        for(const auto &entry: fs::directory_iterator(abspath)){
-            for(int cnt = 0; cnt < dxSize * numOfDimension * distSize; ++cnt, ++p1){
-                holder[cnt] = j[p1].get<double>();
-            }
-            cossim.push_back({entry.path().filename().string(), cossinesim(holder, res)});
-        }
-        sort(cossim.begin(), cossim.end(), cmpcossim);
-        vector < pairToJson::Image > v;
-        for(int i = 0; i < (int)cossim.size(); ++i){
-            if(cossim[i].second < 0.6)  break;
-            pairToJson::Image im = {cossim[i].first, cossim[i].second * 100};
-            v.push_back(im);
-        }
-        json jres;
-        jres = v;
-        ofstream savedJson(savedJsonFileName);
-        savedJson << jres;
-    }catch(...){
-        cout << "An error occured\n";
+    for(const auto &entry: fs::directory_iterator(pathName)){
+        img_to_texture_vector(entry.path().string(), "queryfile");
     }
+    ifstream file(jsonNameFile);
+    json j = json::parse(file);
+    vector < pair < string, double > > cossim;
+    for(int i = 0; i < (int)j.size(); ++i){
+        indexed::index done;
+        indexed::from_json(j[i], done);
+        for(int k = 0; k < (int)done.vec.size(); ++k){
+            sum[k] += done.vec[k];
+        }
+    }
+    double numComp = j.size();
+    for(int k = 0; k < lenDist * numOfDimension * dxSize; ++k){
+        mean[k] = sum[k] / numComp;
+    }
+    for(int i = 0; i < (int)j.size(); ++i){
+        indexed::index done;
+        indexed::from_json(j[i], done);
+        for(int k = 0; k < (int)done.vec.size(); ++k){
+            afterSum[k] += (done.vec[k] - mean[k]) * (done.vec[k] - mean[k]);
+        }
+    }
+    for(int k = 0; k < lenDist * numOfDimension * dxSize; ++k){
+        sigma[k] = sqrt(afterSum[k] / (numComp - 1));
+    }
+    for(int i = 0; i < (int)j.size(); ++i){
+        indexed::index done;
+        indexed::from_json(j[i], done);
+        cossim.push_back({done.name, cossinesim(done.vec, indexedImage.vec)});
+    }
+    sort(cossim.begin(), cossim.end(), cmpcossim);
+    vector < pairToJson::Image > v;
+    for(int i = 0; i < (int)cossim.size(); ++i){
+        if(cossim[i].second < 0.6)  break;
+        pairToJson::Image im = {cossim[i].first, cossim[i].second * 100};
+        v.push_back(im);
+    }
+    json jres;
+    jres = v;
+    ofstream savedJson(savedJsonFileName);
+    savedJson << jres; 
     auto en = high_resolution_clock::now();
     auto dur = duration_cast<milliseconds>(en - beg);
     cout << "Finished calculation in " << dur.count() << "ms" << endl;
