@@ -1,34 +1,19 @@
-import React, { Component } from "react";
-import logo from './logo.svg';
-import Header from './components/Header'
-import './App.css';
+import React from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Header from "./components/Header";
+import Home from "./components/Home";
+import About from "./components/About";
+import Description from "./components/Description";
 
-class App extends Component {
-  constructor(props){
-    super(props);
-    this.state = {apiResponse: ""};
-  }
-
-  callAPI(){
-    fetch("http://localhost:9000/testAPI")
-      .then(res => res.text())
-      .then(res => this.setState({apiResponse: res}))
-      .catch(err => err);
-  }
-  componentDidMount(){
-    this.callAPI();
-  }
-  render(){
-    return (
-      // <div className="App">
-      //   <header className="App-header">
-      //   <img src = {logo} className="App-logo" alt="logo"></img>
-      //   <h1 className="App-title">{this.state.apiResponse}</h1>
-      //   </header>
-      // </div>
-      < Header />
-    )
-  }
-}
-
-export default App;
+const App = () => {
+  return (
+    <Router>
+      <Header />
+      <Routes>
+        <Route path="/description" element={<Description />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/" element={<Home />} />
+      </Routes>
+    </Router>
+  );
+};
