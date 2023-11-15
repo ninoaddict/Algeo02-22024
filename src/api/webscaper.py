@@ -1,19 +1,55 @@
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service as ChromeService
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+import threading
 import requests
 import sys
-import threading
-from bs4 import BeautifulSoup
-import time
 
-mutex = threading.Lock()
-iterator = 1
+############# INSTALASI ##############
+# 1. pip install selenium
+# 2. pip install webdriver-manager --user
+# 3. tambahin '%SYSTEMROOT%\System32\WindowsPowerShell\v1.0\' di path di system variable
+
+
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! #
+# !!!!!!!!!!!! ALERT !!!!!!!!!!!!!!! #
+# !! PASTIKAN INTERNET ANDA BAIK !!! #
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! #
+
+URL = sys.argv[0] # URL
+pathToFolder = sys.argv[1] # path ke folder, diakhiri '/' (slash)
+numOfThread = sys.argv[2] # jumlah thread, minimal 1
+SCROLL_PAUSE_TIME = 0.5 # waktu di antara scroll
+scrollCount = 5 # berapa kali mau scroll ke bottom page
+timeToImplicitlyWait = 10 # waktu untuk driver menunggu image nge-load
 images = []
-pathToFolder = sys.argv[1]
+iterator = 1
 default = ".jpg"
+mutex = threading.Lock()
+aliases = ["src", "data-src"]
 
-# sys.argv[0] = url
-# sys.argv[1] = pathToFolder (diakhiri dengan /)
-# sys.argv[2] = jumlah thread (minimal 1)
 
+def scroll(driver):
+    global SCROLL_PAUSE_TIME, scrollCount, timeToImplicitlyWait
+    last_height = driver.execute_script("return document.body.scrollHeight")
+    i = 0
+    while True:
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(SCROLL_PAUSE_TIME)
+        new_height = driver.execute_script("return document.body.scrollHeight")
+        if new_height == last_height:
+            break
+        last_height = new_height
+        i += 1
+        if i == scrollCount:
+            break
+    driver.implicitly_wait(timeToImplicitlyWait)
+    
+    
 def find_image_format(path):
     list_dir = path.strip().split('/')
     last_path = list_dir[-1]
@@ -32,43 +68,51 @@ def find_image_format(path):
         i = i + 1
     return ans
 
+
 def procUnitThread(beginning, end):
     global images, iterator, pathToFolder, default, mutex
     for ind in range(beginning, end + 1, 1):
-        img = images[ind]
-        source = img.get('src')
-        lazy_load_source = img.get('data-src')
-        outputImg = source
-        if source is None:
-            outputImg = lazy_load_source
-        if outputImg is None:
-            continue
-        img_data = requests.get(outputImg).content
-        img_format = find_image_format(outputImg)
-        if img_format == "":
-            img_format = default
-        with mutex:
-            file_name = str(iterator) + img_format
-            with open(pathToFolder + file_name, 'wb') as handler:
-                handler.write(img_data)
-            iterator = iterator + 1
-
-
+        try:
+            img = images[ind]
+            source = None
+            for alias in aliases:
+                if img.get_attribute(alias) is not None:
+                    source = img.get_attribute(alias)
+                    break
+            if source is None or "http" not in source:
+                continue
+            print(source)
+            img_data = requests.get(source).content
+            img_format = find_image_format(source)
+            if img_format == "":
+                img_format = default
+            with mutex:
+                file_name = str(iterator) + img_format
+                with open(pathToFolder + file_name, 'wb') as handler:
+                    handler.write(img_data)
+                iterator = iterator + 1
+        except Exception as e:
+            continue # ERROR DIBIARIN
+        
+        
 if __name__ == '__main__':
     try:
         start_time = time.time()
-        URL = sys.argv[0]
-        numOfThread = sys.argv[2]
-        page = requests.get(URL)
-        soup = BeautifulSoup(page.content, "html.parser")
-
-        images = soup.find_all("img")
+        options = webdriver.ChromeOptions()
+        options.add_experimental_option('excludeSwitches', ['enable-logging'])
         
-        threads = []
+        driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=options)
+
+        driver.get(URL)
+        
+        scroll(driver)
+        images = driver.find_elements(By.TAG_NAME, 'img')
         
         curLen = len(images)
         st = 0
         numNow = numOfThread
+        
+        threads = []
         
         for _ in range(numOfThread):
             takeLen = curLen // numNow
@@ -78,15 +122,14 @@ if __name__ == '__main__':
             st = endNow + 1
             curLen -= takeLen
             numNow -= 1
-            
+
         for thread in threads:
             thread.start()
         
         for thread in threads:
             thread.join()
         
-        iterator = 1
-        
         print("Finished calculation in " + str(time.time() - start_time) + "ms")
+        
     except Exception as e:
-        raise e
+        pass # ERROR DIBIARIN
