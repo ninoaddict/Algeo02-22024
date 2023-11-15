@@ -164,7 +164,7 @@ void img_to_color_vector(string path)
 int main()
 {
     auto beg = high_resolution_clock::now();
-    const int maxThreads = 10;
+    const int maxThreads = 6;
     vector<string> paths;
     BS::thread_pool pool(maxThreads);
     for (const auto &entry : fs::directory_iterator(abspath))

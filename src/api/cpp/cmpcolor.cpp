@@ -18,7 +18,7 @@ using json = nlohmann::json;
 namespace fs = std::filesystem;
 
 const string jsonFileName = "color.json";
-const string jsonResName = "result.json";
+const string jsonResName = "colorresult.json";
 
 typedef struct
 {
