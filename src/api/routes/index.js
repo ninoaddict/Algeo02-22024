@@ -16,6 +16,7 @@ const { stdout, stderr } = require('process');
 const bincolor1 = "bin/color.exe";
 const bincolor2 = "bin/cmpcolor.exe";
 const bintexture1 = "bin/texture.exe";
+const bintexture2 = "bin/cmptexture";
 
 let udah = false;
 
@@ -65,8 +66,10 @@ router.post('/upload/folder', multer({ storage: folderStorage }).single("zipFile
   }
   await fs.promises.unlink(zipFilePath);
   const startTime = Date.now();
-  await execFileAsync(bincolor1);
-  // await execFileAsync(bintexture1);
+  await Promise.all([
+    execFileAsync(bincolor1),
+    execFileAsync(bintexture1)
+  ]);
   const endTime = Date.now();
   const executionTime = endTime - startTime;
   res.json({ executionTime: executionTime });
@@ -78,12 +81,40 @@ router.post('/upload/color', multer({ storage: imageStorage }).single("image"), 
   const imagePath = req.file.path;
   const startTime = Date.now();
   await execFileAsync(bincolor2);
-  const data = fs.readFileSync('result.json', 'utf-8');
+  const data = fs.readFileSync('colorresult.json', 'utf-8');
   const jsonData = JSON.parse(data);
   await fs.promises.unlink(imagePath);
   const endTime = Date.now();
   const executionTime = endTime - startTime;
-  res.json({img: jsonData, dataNum: jsonData.length, time: executionTime});
+  var dataNum;
+  if (jsonData == null){
+    dataNum = 0;
+  }
+  else{
+    dataNum = jsonData.length;
+  }
+  res.json({img: jsonData, dataNum: dataNum, time: executionTime});
+})
+
+router.post('/upload/texture', multer({ storage: imageStorage}).single("image"), async(req, res, next) => {
+  if (!req.file) return res.status(500).send("Gak ada bebi!");
+  if (!udah) return res.status(400).send("TOLOL");
+  const imagePath = req.file.path;
+  const startTime = Date.now();
+  await execFileAsync(bintexture2);
+  const data = fs.readFileSync('textureresult.json', 'utf-8');
+  const jsonData = JSON.parse(data);
+  await fs.promises.unlink(imagePath);
+  const endTime = Date.now();
+  const executionTime = endTime - startTime;
+  var dataNum;
+  if (jsonData == null){
+    dataNum = 0;
+  }
+  else{
+    dataNum = jsonData.length;
+  }
+  res.json({img: jsonData, dataNum: dataNum, time: executionTime});
 })
 
 module.exports = router;
