@@ -3,10 +3,8 @@
 #include <chrono>
 #include <string>
 #include <fstream>
-#include <mutex>
-#include <thread>
 #include <cmath>
-#include "lib\json.hpp"
+#include "lib/json.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "lib/stb_image.h"
@@ -19,12 +17,8 @@ using namespace std::chrono;
 using json = nlohmann::json;
 namespace fs = std::filesystem;
 
-const string abspath = "../public/images/dataset";
 const string jsonFileName = "color.json";
-const string jsonResName = "result.json";
-
-std::mutex stbImageMutex;
-std::mutex vectorAdd;
+const string jsonResName = "colorresult.json";
 
 typedef struct
 {
@@ -32,26 +26,26 @@ typedef struct
     double similarity;
 } ResFormat;
 
-vector<vector<int>> hist(9, vector<int>(72, 0));
+vector<vector<int>> hist(16, vector<int>(72, 0));
 
 int getHIndex(double H)
 {
     int idxH;
-    if (316 <= H && H <= 360 || H == 0)
+    if (316 <= H && H <= 360)
         idxH = 0;
-    else if (1 <= H && H <= 25)
+    else if (0 <= H && H < 26)
         idxH = 1;
-    else if (26 <= H && H <= 40)
+    else if (26 <= H && H < 41)
         idxH = 2;
-    else if (41 <= H && H <= 120)
+    else if (41 <= H && H < 121)
         idxH = 3;
-    else if (121 <= H && H <= 190)
+    else if (121 <= H && H < 191)
         idxH = 4;
-    else if (191 <= H && H <= 270)
+    else if (191 <= H && H < 271)
         idxH = 5;
-    else if (271 <= H && H <= 295)
+    else if (271 <= H && H < 296)
         idxH = 6;
-    else if (295 <= H && H <= 315)
+    else if (296 <= H && H < 316)
         idxH = 7;
     return idxH;
 }
@@ -84,22 +78,23 @@ void img_to_color_vector(string path)
 {
     int width, height, channels;
     unsigned char *img = stbi_load(path.c_str(), &width, &height, &channels, 3);
-
-    int w[4];
-    int h[4];
+    int w[5];
+    int h[5];
     w[0] = 0;
     h[0] = 0;
     w[1] = width / 4;
     h[1] = height / 4;
-    w[2] = width * 3 / 4;
-    h[2] = height * 3 / 4;
-    w[3] = width;
-    h[3] = height;
+    w[2] = width / 2;
+    h[2] = height / 2;
+    w[3] = width * 3 / 4;
+    h[3] = height * 3 / 4;
+    w[4] = width;
+    h[4] = height;
     int idxCnt = 0;
     unsigned char *p = img;
-    for (int wi = 0; wi < 3; wi++)
+    for (int wi = 0; wi < 4; wi++)
     {
-        for (int hi = 0; hi < 3; hi++)
+        for (int hi = 0; hi < 4; hi++)
         {
             for (int i = w[wi]; i < w[wi + 1]; i++)
             {
@@ -155,11 +150,11 @@ void img_to_color_vector(string path)
     stbi_image_free(img);
 }
 
-int mult[9] = {1, 2, 1, 2, 4, 2, 1, 2, 1};
+int mult[16] = {1,1,1,1,1,4,4,1,1,4,4,1,1,1,1,1};
 
 double simp(vector<vector<int>> cmp){
     double rest = 0;
-    for (int i = 0; i < 9; i++){
+    for (int i = 0; i < 16; i++){
         double sum = 0;
         double aSum = 0;
         double bSum = 0;
@@ -169,18 +164,27 @@ double simp(vector<vector<int>> cmp){
             bSum += hist[i][j] * hist[i][j];
         }
         double temp = sum/(sqrt(aSum) * sqrt(bSum));
-        rest += mult[i] * temp;
+        rest += temp * mult[i];
     }
-    rest /= 16;
+    rest /= 28;
     return rest;
+}
+
+bool cmpResFormat(const ResFormat a, const ResFormat b){
+    return a.similarity > b.similarity;
 }
 
 vector<ResFormat> res;
 int main()
 {
     auto beg = high_resolution_clock::now();
-    string pathW = "../public/images/dataset/0.jpg";
+    string pathW;
+    string absPath = "public/images/test";
+    for (const auto &entry: fs::directory_iterator(absPath)){
+        pathW = entry.path().string();
+    }
     img_to_color_vector(pathW);
+
     // check from file
     std::ifstream inputFile(jsonFileName);
 
@@ -202,15 +206,21 @@ int main()
         vector<vector<int>> vec = pipi["vec"];
         double temp = simp(vec) * 100;
         if (temp > 60){
-            // cout << name << ": " << temp << '\n';
-            // cnt++;
-            jOut.push_back({{"name", name}, {"simp", temp}});
+            ResFormat tmpk;
+            tmpk.fileName = name;
+            tmpk.similarity = temp;
+            res.push_back(tmpk);
         }
     }
+    sort(res.begin(), res.end(), cmpResFormat);
+
+    for (int i = 0; i < res.size(); i++){
+        jOut.push_back({{"name", res[i].fileName}, {"simp", res[i].similarity}});
+    }
+
     ofstream file(jsonResName);
     file << jOut;
     file.close();
-    // cout << cnt << '\n';
 
     auto en = high_resolution_clock::now();
     auto dur = duration_cast<milliseconds>(en - beg);
