@@ -31,6 +31,7 @@ iterator = 1
 default = ".jpg"
 mutex = threading.Lock()
 aliases = ["src", "data-src"]
+allowedFormats = [".jpg", ".png", ".jpeg"] # format yang dibolehin
 
 
 def scroll(driver):
@@ -81,11 +82,12 @@ def procUnitThread(beginning, end):
                     break
             if source is None or "http" not in source:
                 continue
-            print(source)
             img_data = requests.get(source).content
             img_format = find_image_format(source)
             if img_format == "":
                 img_format = default
+            if img_format not in allowedFormats:
+                continue
             with mutex:
                 file_name = str(iterator) + img_format
                 with open(pathToFolder + file_name, 'wb') as handler:
