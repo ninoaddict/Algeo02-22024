@@ -1,10 +1,10 @@
 import React from "react";
-import UploadSingleImage from "./UploadSingleImage";
+import HomeSection1 from "./HomeSection1";
 
 const Home = () => {
   return (
     <div className="p-20">
-      <UploadSingleImage />
+      <HomeSection1 />
     </div>
   );
 };
