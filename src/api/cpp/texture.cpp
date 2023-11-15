@@ -1,6 +1,6 @@
 #pragma GCC optimize("03")
 #include <bits/stdc++.h>
-#include "json\single_include\nlohmann\json.hpp"
+#include "lib/json.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "lib/stb_image.h"

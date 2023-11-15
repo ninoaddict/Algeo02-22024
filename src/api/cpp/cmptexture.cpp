@@ -1,6 +1,6 @@
 #pragma GCC optimize("03")
 #include <bits/stdc++.h>
-#include "json\single_include\nlohmann\json.hpp"
+#include "lib/json.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "lib/stb_image.h"
@@ -22,9 +22,9 @@ const int lenDist = 1;
 const int dxSize = 5;
 const string abspath = "public/images/dataset";
 const string jsonNameFile = "texture.json";
-const string pathName = "../public/images/tes";
+const string pathName = "public/images/test";
 const string imgFileName = "";
-const string savedJsonFileName = "textureResults.json";
+const string savedJsonFileName = "textureresult.json";
 const int numOfDimension = 3;
 
 double hist[channel][channel], mean[lenDist * numOfDimension * dxSize];

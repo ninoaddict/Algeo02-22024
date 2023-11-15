@@ -18,7 +18,7 @@ using json = nlohmann::json;
 namespace fs = std::filesystem;
 
 const string jsonFileName = "color.json";
-const string jsonResName = "result.json";
+const string jsonResName = "colorresult.json";
 
 typedef struct
 {
@@ -78,7 +78,6 @@ void img_to_color_vector(string path)
 {
     int width, height, channels;
     unsigned char *img = stbi_load(path.c_str(), &width, &height, &channels, 3);
-
     int w[5];
     int h[5];
     w[0] = 0;
@@ -89,8 +88,8 @@ void img_to_color_vector(string path)
     h[2] = height / 2;
     w[3] = width * 3 / 4;
     h[3] = height * 3 / 4;
-    h[4] = width;
-    w[4] = height;
+    w[4] = width;
+    h[4] = height;
     int idxCnt = 0;
     unsigned char *p = img;
     for (int wi = 0; wi < 4; wi++)
@@ -151,6 +150,8 @@ void img_to_color_vector(string path)
     stbi_image_free(img);
 }
 
+int mult[16] = {1,1,1,1,1,4,4,1,1,4,4,1,1,1,1,1};
+
 double simp(vector<vector<int>> cmp){
     double rest = 0;
     for (int i = 0; i < 16; i++){
@@ -163,9 +164,9 @@ double simp(vector<vector<int>> cmp){
             bSum += hist[i][j] * hist[i][j];
         }
         double temp = sum/(sqrt(aSum) * sqrt(bSum));
-        rest += temp;
+        rest += temp * mult[i];
     }
-    rest /= 16;
+    rest /= 28;
     return rest;
 }
 
