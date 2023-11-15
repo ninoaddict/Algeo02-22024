@@ -83,7 +83,6 @@ void img_to_color_vector(string path)
     int width, height, temps;
     unsigned char *img = stbi_load(path.c_str(), &width, &height, &temps, 3);
     vector<vector<int>> hist(16, vector<int>(72, 0));
-
     int w[5];
     int h[5];
     w[0] = 0;

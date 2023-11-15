@@ -78,7 +78,6 @@ void img_to_color_vector(string path)
 {
     int width, height, channels;
     unsigned char *img = stbi_load(path.c_str(), &width, &height, &channels, 3);
-
     int w[5];
     int h[5];
     w[0] = 0;
@@ -89,8 +88,8 @@ void img_to_color_vector(string path)
     h[2] = height / 2;
     w[3] = width * 3 / 4;
     h[3] = height * 3 / 4;
-    h[4] = width;
-    w[4] = height;
+    w[4] = width;
+    h[4] = height;
     int idxCnt = 0;
     unsigned char *p = img;
     for (int wi = 0; wi < 4; wi++)
