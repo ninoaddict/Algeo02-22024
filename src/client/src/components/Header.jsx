@@ -3,14 +3,14 @@ import { Link, useLocation } from "react-router-dom";
 
 const Header = () => {
   const location = useLocation();
-  const [page, setPage] = useState(false);
+  const [page, setPage] = useState(null);
 
-  const handlePageClick = () => {
-    setPage(false);
+  const handlePageClick = (currPage) => {
+    setPage(currPage);
   };
 
   return (
-    <nav className="border-gray-200">
+    <nav className="fixed top-0 border-gray-200 navtop" style={{width: "100%"}}>
       <div className="flex flex-wrap items-center justify-between mx-auto px-10">
         <Link className="flex items-center space-x-3 rtl:space-x-reverse" to="/">
           <img src="hlogo.png" alt="" width={100} height={100} />
@@ -24,25 +24,25 @@ const Header = () => {
         <div className="hidden w-full md:block md:w-auto md:mr-9" id="navbar-default">
           <ul className="text-xl font-serif flex flex-col p-4 md:p-0 mt-4 border border-gray-100 rounded-lg md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0 text-navColor">
             <li
-              className={`p-4 hoverNav ${location.pathname === "/" ? "text-white font-bold" : ""
+              className={`p-4 hoverNav ${page === "/" ? "text-white font-bold" : ""
                 }`}
-              onClick={handlePageClick}
+              onClick={() => handlePageClick('/')}
             >
               <Link className="block py-2 px-3 md:border-0 md:p-0" to="/">Home</Link>
             </li>
             <li
-              className={`p-4 hoverNav ${location.pathname === "/description" ? "text-white font-bold" : ""
+              className={`p-4 hoverNav ${page === "/description" ? "text-white font-bold" : ""
                 }`}
-              onClick={handlePageClick}
+              onClick={() => handlePageClick('/description')}
             >
-              <Link className="block py-2 px-3 md:border-0 md:p-0" to="/description">Description</Link>
+              <Link className="block py-2 px-3 md:border-0 md:p-0" to="/#description">Description</Link>
             </li>
             <li
-              className={`p-4 hoverNav ${location.pathname === "/about" ? "text-white font-bold" : ""
+              className={`p-4 hoverNav ${page === "/about" ? "text-white font-bold" : ""
                 }`}
-              onClick={handlePageClick}
+              onClick={() => handlePageClick('/about')}
             >
-              <Link className="block py-2 px-3 md:border-0 md:p-0" to="/about">About</Link>
+              <Link className="block py-2 px-3 md:border-0 md:p-0" to="/#about">About</Link>
             </li>
           </ul>
         </div>

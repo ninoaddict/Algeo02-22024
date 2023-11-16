@@ -10,10 +10,11 @@ module.exports = {
         backColor3: "#4C495D",
         textColor: "#D1D7E0",
         headerC: "#45a29e",
-        navColor: "#C5C7C7"
+        navColor: "#C5C7C7",
+        descColor: "#CCCCCC",
+        descColorGrad: "#666666"
       },
     },
   },
   plugins: [],
 };
-
