@@ -4,22 +4,40 @@ import ToggleButton from "./ToggleButton";
 import SingleImageButton from "./SingleImageUpload";
 import SearchResult from "./SearchResult";
 import DatasetUpload from "./DatasetUpload";
+import JSZip from "jszip";
 
 const HomeSection1 = ({ onUploadSuccess }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [isEnabled, setIsEnabled] = useState(false);
   const [isDatasetUploaded, setIsDatasetUploaded] = useState(false);
-  const [file, setFile] = useState(null);
+  const [files, setFiles] = useState(null);
 
   const handleDatasetChange = (e) => {
-    setFile(e.target.files[0]);
+    setFiles(e.target.files[0]);
   };
 
   const handleDatasetUpload = async () => {
     try {
+      if (!files || files.length === 0) {
+        console.error("No files selected");
+        return;
+      }
+
+      const zip = new JSZip();
+
+      Array.from(files).forEach((file, index) => {
+        zip.file(`image_${index + 1}.jpg`, file);
+      });
+
+      // Generate the zip file
+      const zipBlob = await zip.generateAsync({ type: "blob" });
+      const zipFile = new File([zipBlob], "images.zip", {
+        type: "application/zip",
+      });
+
       const formData = new FormData();
-      formData.append("dataset", file);
+      formData.append("zipFile", zipFile);
 
       const response = await fetch("http://localhost:9000/upload/folder", {
         method: "POST",
@@ -28,13 +46,13 @@ const HomeSection1 = ({ onUploadSuccess }) => {
 
       if (response.ok) {
         const responseData = await response.json();
-        console.log("Server response:", responseData);
         setIsDatasetUploaded(true);
+        console.log("Server response:", responseData);
       } else {
-        console.error("Error uploading dataset:", response.statusText);
+        console.error("Error uploading images:", response.statusText);
       }
     } catch (error) {
-      console.error("Error uploading dataset:", error);
+      console.error("Error uploading images:", error);
     }
   };
 
