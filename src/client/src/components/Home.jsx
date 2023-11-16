@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Header from "./Header";
 import Description from "./Description";
 import { Link, useLocation } from "react-router-dom";
@@ -19,11 +19,11 @@ const Home = () => {
           </button>
         </div>
       </div>
-      <div id="description" className="px-5 flex">
-        <div className="description-title flex items-center justify-end" style={{width: "40%"}}>
+      <div id="description" className='px-5 flex scroll-smooth'>
+        <div className="description-title flex items-center justify-end pr-10" style={{ width: "45%" }}>
           <h1 className="font-extrabold text-transparent text-8xl bg-clip-text bg-gradient-to-r from-purple-600 to-blue-500" style={{ fontFamily: "Inter, system-ui" }}>How To Use</h1>
         </div>
-        <div className="description-text flex items-center justify-center" style={{width: "60%"}}>
+        <div className="description-text flex items-center" style={{ width: "55%" }}>
           <Description />
         </div>
       </div>

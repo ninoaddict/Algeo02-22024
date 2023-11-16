@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 
 const Header = () => {
   const location = useLocation();
-  const [page, setPage] = useState(null);
+  const [page, setPage] = useState('/');
 
   const handlePageClick = (currPage) => {
     setPage(currPage);

@@ -6,20 +6,20 @@ import TimelineConnector from '@mui/lab/TimelineConnector';
 import TimelineContent from '@mui/lab/TimelineContent';
 import TimelineOppositeContent from '@mui/lab/TimelineOppositeContent';
 import TimelineDot from '@mui/lab/TimelineDot';
-import FastfoodIcon from '@mui/icons-material/Fastfood';
-import LaptopMacIcon from '@mui/icons-material/LaptopMac';
-import HotelIcon from '@mui/icons-material/Hotel';
-import RepeatIcon from '@mui/icons-material/Repeat';
 import Typography from '@mui/material/Typography';
+import FolderIcon from '@mui/icons-material/Folder';
+import UploadIcon from '@mui/icons-material/Upload';
+import ImageSearchIcon from '@mui/icons-material/ImageSearch';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 export default function Description() {
   return (
-    <Timeline position="alternate" className='text-white' style={{maxWidth: "700px"}}>
+    <Timeline position="alternate" className='text-white' style={{maxWidth: "750px"}}>
       <TimelineItem>
         <TimelineSeparator>
           <TimelineConnector />
-          <TimelineDot>
-            <FastfoodIcon />
+          <TimelineDot color='primary'>
+            <FolderIcon />
           </TimelineDot>
           <TimelineConnector />
         </TimelineSeparator>
@@ -34,7 +34,7 @@ export default function Description() {
         <TimelineSeparator>
           <TimelineConnector />
           <TimelineDot color="primary">
-            <LaptopMacIcon />
+            <UploadIcon />
           </TimelineDot>
           <TimelineConnector />
         </TimelineSeparator>
@@ -48,10 +48,10 @@ export default function Description() {
       <TimelineItem>
         <TimelineSeparator>
           <TimelineConnector />
-          <TimelineDot color="primary" variant="outlined">
-            <HotelIcon />
+          <TimelineDot color="primary">
+            <ImageSearchIcon />
           </TimelineDot>
-          <TimelineConnector sx={{ bgcolor: 'secondary.main' }} />
+          <TimelineConnector />
         </TimelineSeparator>
         <TimelineContent sx={{ py: '20px', px: 2 }}>
           <Typography variant="h3" component="span" style={{ fontFamily: "Inter, system-ui", fontWeight: "600" }}>
@@ -62,9 +62,9 @@ export default function Description() {
       </TimelineItem>
       <TimelineItem>
         <TimelineSeparator>
-          <TimelineConnector sx={{ bgcolor: 'secondary.main' }} />
-          <TimelineDot color="secondary">
-            <RepeatIcon />
+          <TimelineConnector/>
+          <TimelineDot color="primary">
+            <CheckCircleIcon />
           </TimelineDot>
           <TimelineConnector />
         </TimelineSeparator>
