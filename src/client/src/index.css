@@ -2,8 +2,50 @@
 @tailwind components;
 @tailwind utilities;
 
-body{
-  background-color: #2D283E;
-  margin : 0 ;
+body {
+  /* background-color: #2D283E; */
+  width: 100%;
+  margin: 0;
   padding: 0;
+}
+
+.home,
+.description,
+.about {
+  /* background: linear-gradient(#0B0C10, #21263b); */
+  background: linear-gradient(60deg, rgba(26, 28, 31, 0.8), rgba(26, 28, 31, 0.8)), url(https://images.unsplash.com/photo-1484950763426-56b5bf172dbb?q=80&w=2370&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D);
+  background-repeat: no-repeat;
+  background-size: cover;
+  min-height: 100vh;
+}
+
+.home{
+  display: flex;
+  flex-direction: column;
+}
+
+.hoverNav:after {
+  display: block;
+  content: '';
+  width: inherit;
+  border-bottom: solid 3px white;
+  transform: scaleX(0);
+  transition: transform 250ms ease-in-out;
+}
+
+.hoverNav:hover:after {
+  transform: scaleX(1);
+}
+
+.home-text {
+  display: flex;
+  flex: 1 1 0%;
+  flex-direction: column;
+  -webkit-box-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  justify-content: center;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  gap: 2.5rem;
 }
