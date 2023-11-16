@@ -9,6 +9,8 @@ module.exports = {
         backColor2: "#564F6F",
         backColor3: "#4C495D",
         textColor: "#D1D7E0",
+        headerC: "#45a29e",
+        navColor: "#C5C7C7"
       },
     },
   },

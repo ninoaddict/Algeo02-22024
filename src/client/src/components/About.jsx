@@ -1,7 +1,14 @@
 import React, { useState, useEffect } from "react";
+import Header from "./Header";
+import './../index.css';
 
 const About = () => {
-  return <div className="p-20">About Page</div>;
+  
+  return (
+    <div className="about">
+      <Header />
+    </div>
+  );
 };
 
 export default About;

@@ -18,7 +18,7 @@ using namespace std::chrono;
 using json = nlohmann::json;
 namespace fs = std::filesystem;
 
-const string abspath = "public/images/dataset";
+const string abspath = "../client/public/dataset";
 const string jsonFileName = "color.json";
 
 std::mutex stbImageMutex;
@@ -78,7 +78,7 @@ int getVIndex(double V)
     return idxV;
 }
 
-void img_to_color_vector(string path)
+void img_to_color_vector(string path, string name)
 {
     int width, height, temps;
     unsigned char *img = stbi_load(path.c_str(), &width, &height, &temps, 3);
@@ -155,7 +155,8 @@ void img_to_color_vector(string path)
     stbi_image_free(img);
     std::lock_guard<std::mutex> lock(vectorAdd);
     SendJson temp;
-    temp.name = path.substr(22);
+    // temp.name = path.substr(22);
+    temp.name = name;
     temp.vec = hist;
     res.push_back(temp);
 }
@@ -165,17 +166,19 @@ int main()
     auto beg = high_resolution_clock::now();
     const int maxThreads = 6;
     vector<string> paths;
+    vector<string> pathNames;
     BS::thread_pool pool(maxThreads);
     for (const auto &entry : fs::directory_iterator(abspath))
     {
         paths.push_back(entry.path().string());
+        pathNames.push_back(entry.path().filename().string());
     }
 
     pool.push_loop(paths.size(), 
-        [&paths](const int a, const int b)
+        [&paths, &pathNames](const int a, const int b)
         {
             for (int i = a; i < b; i++){
-                img_to_color_vector(paths[i]);
+                img_to_color_vector(paths[i], pathNames[i]);
             }
         }
     );

@@ -131,3 +131,5 @@ dist
 
 src/api/public/images
 src/api/public/temp
+
+src/client/public/dataset
