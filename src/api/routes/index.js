@@ -53,7 +53,7 @@ router.post('/upload/folder', multer({ storage: folderStorage }).single("zipFile
   udah = true;
 
   const zipFilePath = req.file.path;
-  const extractionPath = path.join("public", "images", "dataset");
+  const extractionPath = path.join("..", "client", "public", "dataset");
 
   // delete the content of the previous dataset
   const filesInExtractionPath = await fs.promises.readdir(extractionPath);
@@ -81,7 +81,7 @@ router.post('/upload/folder', multer({ storage: folderStorage }).single("zipFile
 router.post('/upload/url', async (req, res, next) => {
   const startTime = Date.now();
   udah = true;
-  const extractionPath = "./public/images/dataset/";
+  const extractionPath = "./../client/public/dataset/";
 
   // delete the previous dataset images
   const filesInExtractionPath = await fs.promises.readdir(extractionPath);
