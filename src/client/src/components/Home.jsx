@@ -5,10 +5,24 @@ import { Link, useLocation } from "react-router-dom";
 import './../index.css';
 
 const Home = () => {
+  const loc = useLocation();
+
+  useEffect(() => {
+    const elmtID = loc.hash.substring(1);
+    scrollToElmt(elmtID);
+  }, [loc]);
+
+  const scrollToElmt = (elmtID) => {
+    const elmt = document.getElementById(elmtID);
+    if (elmt){
+      elmt.scrollIntoView({behavior: "smooth", block : 'start'});
+    }
+  }
+
   return (
-    <div className="cont">
+    <div className="cont" style={{scrollBehavior:'smooth'}}>
       <Header />
-      <div className="home" id="home">
+      <div className="home" id="home" style={{scrollBehavior:'smooth'}}>
         <div className="home-text">
           <div className="md:flex md:flex-col md:items-center">
             <h1 className="font-extrabold text-transparent text-8xl bg-clip-text bg-gradient-to-r from-blue-400 to-purple-600" style={{ fontFamily: "Inter, system-ui" }}>Discover The World</h1>
@@ -19,7 +33,7 @@ const Home = () => {
           </button>
         </div>
       </div>
-      <div id="description" className='px-5 flex scroll-smooth'>
+      <div id="description" className='px-5 flex' style={{scrollBehavior:'smooth'}}>
         <div className="description-title flex items-center justify-end pr-10" style={{ width: "45%" }}>
           <h1 className="font-extrabold text-transparent text-8xl bg-clip-text bg-gradient-to-r from-purple-600 to-blue-500" style={{ fontFamily: "Inter, system-ui" }}>How To Use</h1>
         </div>
@@ -27,7 +41,7 @@ const Home = () => {
           <Description />
         </div>
       </div>
-      <div id="about" className="grow">
+      <div id="about" style={{scrollBehavior:'smooth'}}>
 
       </div>
     </div>
