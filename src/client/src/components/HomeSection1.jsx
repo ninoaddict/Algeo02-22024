@@ -45,9 +45,9 @@ const HomeSection1 = ({ onUploadSuccess }) => {
       });
 
       if (response.ok) {
-        const responseData = await response.json();
+        // const responseData = await response.json();
         setIsDatasetUploaded(true);
-        console.log("Server response:", responseData);
+        console.log("Server Response !");
       } else {
         console.error("Error uploading images:", response.statusText);
       }
@@ -76,6 +76,35 @@ const HomeSection1 = ({ onUploadSuccess }) => {
     }
   };
 
+  const handleRemove = () => {
+    setSelectedFile(null);
+    setPreviewUrl(null);
+  };
+
+  const handleDrop = (event) => {
+    event.preventDefault();
+    const droppedFiles = event.dataTransfer.files;
+
+    // Memeriksa apakah ada file dan hanya satu file
+    if (
+      droppedFiles.length === 1 &&
+      droppedFiles[0].type.startsWith("image/")
+    ) {
+      const file = droppedFiles[0];
+
+      setSelectedFile(file);
+
+      // Membuat pratinjau gambar
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewUrl(reader.result);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      alert("Please drop only one image file.");
+    }
+  };
+
   const handleSearch = () => {
     if (selectedFile) {
       const formData = new FormData();
@@ -87,7 +116,7 @@ const HomeSection1 = ({ onUploadSuccess }) => {
 
     async function searhResult(formData) {
       try {
-        const response = await fetch("http://localhost:9000/upload/image", {
+        const response = await fetch("http://localhost:9000/upload/color", {
           method: "POST",
           body: formData,
         });
@@ -108,24 +137,30 @@ const HomeSection1 = ({ onUploadSuccess }) => {
   return (
     <div>
       <div className="flex items-start justify-between">
-        <ImageCard imageUrl={previewUrl} />
-        <div className="flex flex-col ">
-          <div className="flex flex-col items-start ml-2 space-y-20">
+        <ImageCard
+          imageUrl={previewUrl}
+          handleDrop={handleDrop}
+          handleRemove={handleRemove}
+        />
+        <div className="flex flex-col space-y-12">
+          <SingleImageButton
+            handleImageChange={handleImageChange}
+            className="mb-4"
+          />
+          <div className="flex flex-col">
             <DatasetUpload
               handleDatasetChange={handleDatasetChange}
               handleDatasetUpload={handleDatasetUpload}
             />
-            <SingleImageButton handleImageChange={handleImageChange} />
-            <ToggleButton
-              enabled={isEnabled}
-              handleToggleClick={handleToggle}
-            />
-            <SearchResult
-              isDatasetUploaded={isDatasetUploaded}
-              handleSearch={handleSearch}
-            />
           </div>
         </div>
+      </div>
+      <div className="flex flex-col items-center justify-center">
+        <ToggleButton enabled={isEnabled} handleToggleClick={handleToggle} />
+        <SearchResult
+          isDatasetUploaded={isDatasetUploaded}
+          handleSearch={handleSearch}
+        />
       </div>
     </div>
   );
