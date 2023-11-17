@@ -14,43 +14,57 @@ const HomeSection1 = ({ onUploadSuccess }) => {
   const [files, setFiles] = useState(null);
 
   const handleDatasetChange = (e) => {
-    setFiles(e.target.files[0]);
+    setFiles(e.target.files);
   };
 
-  const handleDatasetUpload = async () => {
+  async function handleDatasetUpload(){
     try {
       if (!files || files.length === 0) {
         console.error("No files selected");
         return;
       }
 
+      const readFile = (file) => {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = function (event) {
+            resolve(event.target.result);
+          };
+          reader.onerror = function (error) {
+            reject(error);
+          };
+
+          reader.readAsArrayBuffer(file);
+        });
+      };
+
       const zip = new JSZip();
 
-      Array.from(files).forEach((file, index) => {
-        zip.file(`image_${index + 1}.jpg`, file);
-      });
+
+      for (let i = 0; i < files.length; i++) {
+        const fileName = files[i];
+        const content = await readFile(fileName);
+        zip.file(fileName.name, content);
+      }
 
       // Generate the zip file
       const zipBlob = await zip.generateAsync({ type: "blob" });
-      const zipFile = new File([zipBlob], "images.zip", {
-        type: "application/zip",
-      });
 
       const formData = new FormData();
-      formData.append("zipFile", zipFile);
+      formData.append("zipFile", zipBlob, 'images.zip');
+      console.log(formData);
 
       const response = await fetch("http://localhost:9000/upload/folder", {
         method: "POST",
         body: formData,
-      });
-
-      if (response.ok) {
-        // const responseData = await response.json();
-        setIsDatasetUploaded(true);
-        console.log("Server Response !");
-      } else {
-        console.error("Error uploading images:", response.statusText);
-      }
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Server response: ',data);
+      })
+      .catch(error => {
+        console.log('Error: ', error);
+      })
     } catch (error) {
       console.error("Error uploading images:", error);
     }
