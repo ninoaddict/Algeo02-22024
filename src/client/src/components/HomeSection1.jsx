@@ -5,19 +5,33 @@ import SingleImageButton from "./SingleImageUpload";
 import SearchResult from "./SearchResult";
 import DatasetUpload from "./DatasetUpload";
 import JSZip from "jszip";
+import { Pagination } from "@mui/material";
+import ResultDisplay from "./ResultDisplay";
 
-const HomeSection1 = ({ onUploadSuccess }) => {
+const HomeSection1 = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [isEnabled, setIsEnabled] = useState(false);
   const [isDatasetUploaded, setIsDatasetUploaded] = useState(false);
   const [files, setFiles] = useState(null);
+  const [resultImages, setResultImages] = useState([]);
+  const [imagesPerPage, setImagePerPage] = useState(24);
+  const [currentPage, setCurrentPage] = useState(1);
 
+  const indexOfLastImage = currentPage * imagesPerPage;
+  const indexOfFirstImage = indexOfLastImage - imagesPerPage;
+  const currentImages = resultImages.slice(indexOfFirstImage, indexOfLastImage);
+  // Pagination Logic
+  const paginate = (event, value) => {
+    setCurrentPage(value);
+  };
+
+  // Dataset Handler
   const handleDatasetChange = (e) => {
     setFiles(e.target.files);
   };
 
-  async function handleDatasetUpload(){
+  async function handleDatasetUpload() {
     try {
       if (!files || files.length === 0) {
         console.error("No files selected");
@@ -40,7 +54,6 @@ const HomeSection1 = ({ onUploadSuccess }) => {
 
       const zip = new JSZip();
 
-
       for (let i = 0; i < files.length; i++) {
         const fileName = files[i];
         const content = await readFile(fileName);
@@ -51,30 +64,27 @@ const HomeSection1 = ({ onUploadSuccess }) => {
       const zipBlob = await zip.generateAsync({ type: "blob" });
 
       const formData = new FormData();
-      formData.append("zipFile", zipBlob, 'images.zip');
+      formData.append("zipFile", zipBlob, "images.zip");
       console.log(formData);
 
       const response = await fetch("http://localhost:9000/upload/folder", {
         method: "POST",
         body: formData,
       })
-      .then(response => response.json())
-      .then(data => {
-        console.log('Server response: ',data);
-      })
-      .catch(error => {
-        console.log('Error: ', error);
-      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log("Server response: ", data);
+          setIsDatasetUploaded(true);
+        })
+        .catch((error) => {
+          console.log("Error: ", error);
+        });
     } catch (error) {
       console.error("Error uploading images:", error);
     }
-  };
+  }
 
-  const handleToggle = () => {
-    setIsEnabled(!isEnabled);
-    console.log(isEnabled);
-  };
-
+  // Image Handler
   const handleImageChange = (event) => {
     const file = event.target.files[0];
 
@@ -119,6 +129,12 @@ const HomeSection1 = ({ onUploadSuccess }) => {
     }
   };
 
+  // Toggle Handler
+  const handleToggle = () => {
+    console.log(!isEnabled);
+    setIsEnabled(!isEnabled);
+  };
+
   const handleSearch = () => {
     if (selectedFile) {
       const formData = new FormData();
@@ -130,18 +146,27 @@ const HomeSection1 = ({ onUploadSuccess }) => {
 
     async function searhResult(formData) {
       try {
-        const response = await fetch("http://localhost:9000/upload/color", {
-          method: "POST",
-          body: formData,
-        });
+        const searchMethod = isEnabled ? "texture" : "color";
+        const response = await fetch(
+          "http://localhost:9000/upload/" + searchMethod,
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
 
         if (!response.ok) {
           throw new Error("Upload failed");
         }
         const data = await response.json();
 
+        // console.log(data);
+        if (data != null) {
+          setResultImages(data);
+        } else {
+          setResultImages([]);
+        }
         console.log("Upload successful:", data);
-        onUploadSuccess(data.imageUrl);
       } catch (error) {
         console.error("Upload error:", error);
       }
@@ -176,6 +201,15 @@ const HomeSection1 = ({ onUploadSuccess }) => {
           handleSearch={handleSearch}
         />
       </div>
+      {resultImages.length > 0 && (
+        <ResultDisplay
+          resultCount={resultImages.length}
+          paginate={paginate}
+          currentPage={currentPage}
+          currentImages={currentImages}
+          imagesPerPage={imagesPerPage}
+        />
+      )}
     </div>
   );
 };
