@@ -74,8 +74,6 @@ int getVIndex(double V)
     return idxV;
 }
 
-int mult[16] = {1,1,1,1,1,2,2,1,1,2,2,1,1,1,1,1};
-
 void img_to_color_vector(string path)
 {
     int width, height, channels;
@@ -154,9 +152,9 @@ void img_to_color_vector(string path)
     for (int i = 0; i < 72; i++){
         nino = 0;
         for (int j = 0; j < 16; j++){
-            nino += mult[j] * tempHist[j][i];
+            nino += tempHist[j][i];
         }
-        nino /= 20;
+        nino /= 16;
         hist[i] = nino;
     }
     stbi_image_free(img);
@@ -172,7 +170,13 @@ double simp(vector<int> cmp)
         aSum += cmp[i] * cmp[i];
         bSum += hist[i] * hist[i];
     }
-    double rest = sum / (sqrt(aSum) * sqrt(bSum));
+    double rest;
+    if (aSum == bSum){
+        rest = sum / aSum;
+    }
+    else{
+        rest = sum / (sqrt(aSum) * sqrt(bSum));
+    }
     return rest;
 }
 

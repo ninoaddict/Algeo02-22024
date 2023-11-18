@@ -32,8 +32,6 @@ typedef struct
 
 vector<SendJson> res;
 
-int mult[16] = {1,1,1,1,1,2,2,1,1,2,2,1,1,1,1,1};
-
 int getHIndex(double H)
 {
     int idxH;
@@ -159,9 +157,9 @@ void img_to_color_vector(string path, string name)
     for (int i = 0; i < 72; i++){
         nino = 0;
         for (int j = 0; j < 16; j++){
-            nino += mult[j] * hist[j][i];
+            nino += hist[j][i];
         }
-        nino /= 20;
+        nino /= 16;
         histRes[i] = nino;
     }
     stbi_image_free(img);
