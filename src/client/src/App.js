@@ -1,17 +1,15 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import Header from "./components/Header";
-import Home from "./components/Home";
-import About from "./components/About";
+import Home from "./page/Home";
 import Description from "./components/Description";
+import UploadPage from "./page/UploadPage";
 
 const App = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/description" element={<Description />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={< Home />} />
+        <Route path="/upload" element={< UploadPage />}></Route>
       </Routes>
     </Router>
   );

@@ -119,14 +119,7 @@ router.post('/upload/color', multer({ storage: imageStorage }).single("image"), 
   await fs.promises.unlink(imagePath);
   const endTime = Date.now();
   const executionTime = endTime - startTime;
-  var dataNum;
-  if (jsonData == null){
-    dataNum = 0;
-  }
-  else{
-    dataNum = jsonData.length;
-  }
-  res.json({img: jsonData, dataNum: dataNum, time: executionTime});
+  res.json(jsonData);
 });
 
 router.post('/upload/texture', multer({ storage: imageStorage}).single("image"), async(req, res, next) => {
@@ -140,14 +133,7 @@ router.post('/upload/texture', multer({ storage: imageStorage}).single("image"),
   await fs.promises.unlink(imagePath);
   const endTime = Date.now();
   const executionTime = endTime - startTime;
-  var dataNum;
-  if (jsonData == null){
-    dataNum = 0;
-  }
-  else{
-    dataNum = jsonData.length;
-  }
-  res.json({img: jsonData, dataNum: dataNum, time: executionTime});
+  res.json(jsonData);
 });
 
 module.exports = router;
