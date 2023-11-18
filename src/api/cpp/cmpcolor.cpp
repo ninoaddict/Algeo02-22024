@@ -26,7 +26,7 @@ typedef struct
     double similarity;
 } ResFormat;
 
-vector<vector<int>> hist(16, vector<int>(72, 0));
+vector<int> hist(72, 0);
 
 int getHIndex(double H)
 {
@@ -74,10 +74,13 @@ int getVIndex(double V)
     return idxV;
 }
 
+int mult[16] = {1,1,1,1,1,2,2,1,1,2,2,1,1,1,1,1};
+
 void img_to_color_vector(string path)
 {
     int width, height, channels;
     unsigned char *img = stbi_load(path.c_str(), &width, &height, &channels, 3);
+    vector<vector<int>> tempHist(16, vector<int> (72, 0));
     int w[5];
     int h[5];
     w[0] = 0;
@@ -141,36 +144,40 @@ void img_to_color_vector(string path)
                         S = (delta / cMax);
                     V = cMax;
                     int idxH = getHIndex(H), idxS = getSIndex(S), idxV = getVIndex(V);
-                    hist[idxCnt][idxH * 9 + idxS * 3 + idxV]++;
+                    tempHist[idxCnt][idxH * 9 + idxS * 3 + idxV]++;
                 }
             }
             idxCnt++;
         }
     }
+    int nino;
+    for (int i = 0; i < 72; i++){
+        nino = 0;
+        for (int j = 0; j < 16; j++){
+            nino += mult[j] * tempHist[j][i];
+        }
+        nino /= 20;
+        hist[i] = nino;
+    }
     stbi_image_free(img);
 }
 
-int mult[16] = {1,1,1,1,1,4,4,1,1,4,4,1,1,1,1,1};
-
-double simp(vector<vector<int>> cmp){
-    double rest = 0;
-    for (int i = 0; i < 16; i++){
-        double sum = 0;
-        double aSum = 0;
-        double bSum = 0;
-        for (int j = 0; j < 72; j++){
-            sum += cmp[i][j] * hist[i][j];
-            aSum += cmp[i][j] * cmp[i][j];
-            bSum += hist[i][j] * hist[i][j];
-        }
-        double temp = sum/(sqrt(aSum) * sqrt(bSum));
-        rest += temp * mult[i];
+double simp(vector<int> cmp)
+{
+    double sum = 0;
+    double aSum = 0;
+    double bSum = 0;
+    for (int i = 0; i < 72; i++){
+        sum += cmp[i] * hist[i];
+        aSum += cmp[i] * cmp[i];
+        bSum += hist[i] * hist[i];
     }
-    rest /= 28;
+    double rest = sum / (sqrt(aSum) * sqrt(bSum));
     return rest;
 }
 
-bool cmpResFormat(const ResFormat a, const ResFormat b){
+bool cmpResFormat(const ResFormat a, const ResFormat b)
+{
     return a.similarity > b.similarity;
 }
 
@@ -180,7 +187,8 @@ int main()
     auto beg = high_resolution_clock::now();
     string pathW;
     string absPath = "public/images/test";
-    for (const auto &entry: fs::directory_iterator(absPath)){
+    for (const auto &entry : fs::directory_iterator(absPath))
+    {
         pathW = entry.path().string();
     }
     img_to_color_vector(pathW);
@@ -203,9 +211,11 @@ int main()
     for (const auto &pipi : jsonData)
     {
         string name = pipi["name"];
-        vector<vector<int>> vec = pipi["vec"];
+        vector<int> vec = pipi["vec"];
         double temp = simp(vec) * 100;
-        if (temp > 60){
+        // cout << temp << '\n';
+        if (temp > 60)
+        {
             ResFormat tmpk;
             tmpk.fileName = name;
             tmpk.similarity = temp;
@@ -214,7 +224,8 @@ int main()
     }
     sort(res.begin(), res.end(), cmpResFormat);
 
-    for (int i = 0; i < res.size(); i++){
+    for (int i = 0; i < res.size(); i++)
+    {
         jOut.push_back({{"name", res[i].fileName}, {"simp", res[i].similarity}});
     }
 
