@@ -121,8 +121,6 @@ router.post('/upload/color', multer({ storage: imageStorage }).single("image"), 
   const jsonData = JSON.parse(data);
   await fs.promises.unlink(imagePath);
 
-  console.log(jsonData.length);
-
   // send the json data
   res.json(jsonData);
 });
