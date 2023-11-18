@@ -23,6 +23,7 @@ let udah = false;
 router.use(express.json());
 router.use(express.urlencoded({ extended: true }));
 
+// Disk storage to save the temporary zip file
 const folderStorage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, path.join("public", "temp"));
@@ -32,6 +33,7 @@ const folderStorage = multer.diskStorage({
   }
 });
 
+// Disk storage to save the query image
 const imageStorage = multer.diskStorage({
   destination: function(req, file, cb){
     cb(null, path.join("public", "images", "test"));
@@ -47,9 +49,8 @@ router.get('/', function (req, res, next) {
 });
 
 router.post('/upload/folder', multer({ storage: folderStorage }).single("zipFile"), async (req, res, next) => {
-  // if there are no folder uploaded
+  // if there is no folder uploaded
   if (!req.file) return res.status(400).send('No folder uploaded.');
-  const startTime = Date.now();
   udah = true;
 
   const zipFilePath = req.file.path;
@@ -62,6 +63,7 @@ router.post('/upload/folder', multer({ storage: folderStorage }).single("zipFile
     await fs.promises.unlink(filePath);
   }));
 
+  // unzip the files
   try {
     const zip = new AdmZip(zipFilePath);
     zip.extractAllTo(extractionPath);
@@ -69,17 +71,16 @@ router.post('/upload/folder', multer({ storage: folderStorage }).single("zipFile
     return res.status(500).send('Tolol');
   }
   await fs.promises.unlink(zipFilePath);
+
+  // run the color and texture program
   await Promise.all([
     execFileAsync(bincolor1),
     execFileAsync(bintexture1)
   ]);
-  const endTime = Date.now();
-  const executionTime = endTime - startTime;
-  res.json({ executionTime: executionTime });
+  res.status(200).send("berhasil!");
 });
 
 router.post('/upload/url', async (req, res, next) => {
-  const startTime = Date.now();
   udah = true;
   const extractionPath = "./../client/public/dataset/";
 
@@ -103,51 +104,45 @@ router.post('/upload/url', async (req, res, next) => {
     execFileAsync(bintexture1)
   ]);
 
-  const endTime = Date.now();
-  const executionTime = endTime - startTime;
-  res.json({executionTime: executionTime});
+  res.status(200).send("berhasil!");
 });
 
 router.post('/upload/color', multer({ storage: imageStorage }).single("image"), async(req, res, next) => {
-  if (!req.file) return res.status(500).send("No folder uploaded.");
-  if (!udah) return res.status(400).send("TOLOL");
+  // if there is no file uploaded
+  if (!req.file) return res.status(500).send("No file uploaded.");
+
+  // if the dataset folder has not been uploaded
+  if (!udah) return res.status(400).send("No dataset!");
+
+  // run the child process program
   const imagePath = req.file.path;
-  const startTime = Date.now();
   await execFileAsync(bincolor2);
   const data = fs.readFileSync('colorresult.json', 'utf-8');
   const jsonData = JSON.parse(data);
   await fs.promises.unlink(imagePath);
-  const endTime = Date.now();
-  const executionTime = endTime - startTime;
-  var dataNum;
-  if (jsonData == null){
-    dataNum = 0;
-  }
-  else{
-    dataNum = jsonData.length;
-  }
-  res.json({img: jsonData, dataNum: dataNum, time: executionTime});
+
+  console.log(jsonData.length);
+
+  // send the json data
+  res.json(jsonData);
 });
 
 router.post('/upload/texture', multer({ storage: imageStorage}).single("image"), async(req, res, next) => {
-  if (!req.file) return res.status(500).send("Gak ada bebi!");
-  if (!udah) return res.status(400).send("TOLOL");
+  // if there is no file uploaded
+  if (!req.file) return res.status(500).send("No file uploaded");
+
+  // if the dataset folder has not been uploaded
+  if (!udah) return res.status(400).send("No dataset!");
+
+  // run the child process program
   const imagePath = req.file.path;
-  const startTime = Date.now();
   await execFileAsync(bintexture2);
   const data = fs.readFileSync('textureresult.json', 'utf-8');
   const jsonData = JSON.parse(data);
   await fs.promises.unlink(imagePath);
-  const endTime = Date.now();
-  const executionTime = endTime - startTime;
-  var dataNum;
-  if (jsonData == null){
-    dataNum = 0;
-  }
-  else{
-    dataNum = jsonData.length;
-  }
-  res.json({img: jsonData, dataNum: dataNum, time: executionTime});
+
+  // send the json data
+  res.json(jsonData);
 });
 
 module.exports = router;
