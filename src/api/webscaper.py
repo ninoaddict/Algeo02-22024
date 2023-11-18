@@ -20,9 +20,9 @@ import sys
 # !! PASTIKAN INTERNET ANDA BAIK !!! #
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! #
 
-URL = sys.argv[1] # URL
-pathToFolder = sys.argv[2] # path ke folder, diakhiri '/' (slash)
-numOfThread = int(sys.argv[3]) # jumlah thread, minimal 1
+URL = sys.argv[0] # URL
+pathToFolder = sys.argv[1] # path ke folder, diakhiri '/' (slash)
+numOfThread = int(sys.argv[2]) # jumlah thread, minimal 1
 SCROLL_PAUSE_TIME = 0.5 # waktu di antara scroll
 scrollCount = 5 # berapa kali mau scroll ke bottom page
 timeToImplicitlyWait = 10 # waktu untuk driver menunggu image nge-load
@@ -76,6 +76,7 @@ def procUnitThread(beginning, end):
         try:
             img = images[ind]
             source = None
+            print(img)
             for alias in aliases:
                 if img.get_attribute(alias) is not None:
                     source = img.get_attribute(alias)
@@ -86,8 +87,9 @@ def procUnitThread(beginning, end):
             img_format = find_image_format(source)
             if img_format == "":
                 img_format = default
-            if img_format not in allowedFormats:
-                continue
+            #if img_format not in allowedFormats:
+                #continue
+            print(img_format)
             with mutex:
                 file_name = str(iterator) + img_format
                 with open(pathToFolder + file_name, 'wb') as handler:
@@ -100,18 +102,25 @@ def procUnitThread(beginning, end):
 if __name__ == '__main__':
     try:
         start_time = time.time()
-        options = webdriver.ChromeOptions()
-        options.add_experimental_option('excludeSwitches', ['enable-logging'])
+        options = webdriver.FirefoxOptions()
+        WINDOW_SIZE = "1920,1080"
         
-        driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=options)
+        options.add_argument("--headless")
+        #options.add_argument("--window-size=%s" % WINDOW_SIZE)
+        
+        driver = webdriver.Firefox(options=options)
 
         driver.get(URL)
         
         scroll(driver)
+        
         images = driver.find_elements(By.TAG_NAME, 'img')
         
         curLen = len(images)
+        
+        print(curLen)
         st = 0
+        numOfThread = min(numOfThread, curLen)
         numNow = numOfThread
         
         threads = []
