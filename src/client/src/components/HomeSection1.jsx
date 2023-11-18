@@ -64,6 +64,7 @@ const HomeSection1 = () => {
 
       const formData = new FormData();
       formData.append("zipFile", zipBlob, "images.zip");
+      // console.log("something");
       console.log(formData);
 
       const response = await fetch("http://localhost:9000/upload/folder", {
