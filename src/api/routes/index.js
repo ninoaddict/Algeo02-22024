@@ -77,7 +77,7 @@ router.post('/upload/folder', multer({ storage: folderStorage }).single("zipFile
     execFileAsync(bincolor1),
     execFileAsync(bintexture1)
   ]);
-  res.status(200).send("berhasil!");
+  res.status(200).json({msg: "berhasil!"});
 });
 
 router.post('/upload/url', async (req, res, next) => {
@@ -104,7 +104,7 @@ router.post('/upload/url', async (req, res, next) => {
     execFileAsync(bintexture1)
   ]);
 
-  res.status(200).send("berhasil!");
+  res.status(200).json({msg: "berhasil!"});
 });
 
 router.post('/upload/color', multer({ storage: imageStorage }).single("image"), async(req, res, next) => {
