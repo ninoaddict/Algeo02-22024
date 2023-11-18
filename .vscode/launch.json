@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": true,
-      "cwd": "d:/Kuliah/Algeo02-22024/src/api/cpp",
-      "program": "d:/Kuliah/Algeo02-22024/src/api/cpp/build/Debug/outDebug",
+      "cwd": "d:/Kuliah/Algeo02-22024/clonebaru/Algeo02-22024/src/api/cpp",
+      "program": "d:/Kuliah/Algeo02-22024/clonebaru/Algeo02-22024/src/api/cpp/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [
