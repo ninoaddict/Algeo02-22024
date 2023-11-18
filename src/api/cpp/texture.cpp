@@ -117,6 +117,7 @@ void img_to_texture_vector(string path, string name){
     m.lock();
     res.push_back(objJson);
     m.unlock();
+    stbi_image_free(img);
 }
 
 void procUnitThread(int stInd, int endInd){
