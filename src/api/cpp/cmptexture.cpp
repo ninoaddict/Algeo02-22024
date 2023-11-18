@@ -25,7 +25,7 @@ const string jsonNameFile = "texture.json";
 const string pathName = "public/images/test";
 const string imgFileName = "";
 const string savedJsonFileName = "textureresult.json";
-const int numOfDimension = 3;
+const int numOfDimension = 5;
 
 double hist[channel][channel], mean[lenDist * numOfDimension * dxSize];
 
