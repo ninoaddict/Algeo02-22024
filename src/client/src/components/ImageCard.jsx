@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 
 const ImageCard = ({ imageUrl, handleDrop, handleRemove }) => {
-  console.log("Image URL:", imageUrl);
-
   const [isDropped, setIsDropped] = useState(false);
 
   const handleDragEnter = (e) => {
