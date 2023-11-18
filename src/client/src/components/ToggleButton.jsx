@@ -10,7 +10,7 @@ export default function Toggle({ enabled, handleToggleClick }) {
         >
           Color
         </h1>
-        <div className>
+        <div>
           <label className="relative inline-flex items-center cursor-pointer">
             <input
               type="checkbox"
