@@ -103,6 +103,8 @@ if __name__ == '__main__':
         options = webdriver.ChromeOptions()
         options.add_experimental_option('excludeSwitches', ['enable-logging'])
         
+        options.add_argument('--headless=new')
+
         driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=options)
 
         driver.get(URL)
