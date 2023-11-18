@@ -5,7 +5,6 @@ import SingleImageButton from "./SingleImageUpload";
 import SearchResult from "./SearchResult";
 import DatasetUpload from "./DatasetUpload";
 import JSZip from "jszip";
-import { Pagination } from "@mui/material";
 import ResultDisplay from "./ResultDisplay";
 
 const HomeSection1 = () => {
@@ -198,6 +197,7 @@ const HomeSection1 = () => {
         <ToggleButton enabled={isEnabled} handleToggleClick={handleToggle} />
         <SearchResult
           isDatasetUploaded={isDatasetUploaded}
+          isImageChosen={selectedFile ? true : false}
           handleSearch={handleSearch}
         />
       </div>
