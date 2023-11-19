@@ -36,7 +36,7 @@ const HomeSection1 = () => {
     setFiles(e.dataTransfer.files);
   };
 
-  async function handleDatasetUpload() {
+  async function handleDatasetUpload(e) {
     try {
       if (!files || files.length === 0) {
         console.error("No files selected");
@@ -182,16 +182,24 @@ const HomeSection1 = () => {
   };
 
   return (
-    <div>
-      <div className="flex flex-wrap ">
-        <ImageCard
-          imageUrl={previewUrl}
-          handleDrop={handleDrop}
-          handleRemove={handleRemove}
-          handleImageChange={handleImageChange}
-        />
-        <div className="flex flex-col space-y-12">
+    <div className="flex flex-col items-center justify-start min-h-screen space-y-8">
+      <div className="flex flex-wrap space-x-8">
+        <div className="flex flex-col ">
+          <h1 className="text-2xl font-extrabold text-transparent font-arial text-bold bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">
+            Upload Image{" "}
+          </h1>
+          <ImageCard
+            imageUrl={previewUrl}
+            handleDrop={handleDrop}
+            handleRemove={handleRemove}
+            handleImageChange={handleImageChange}
+          />
+        </div>
+        <div className="flex flex-col items-center space-y-12">
           <div className="flex flex-col">
+            <h1 className="text-2xl font-extrabold text-transparent font-arial text-bold bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">
+              Upload Dataset
+            </h1>
             <NewDatasetUpload
               handleDatasetDrop={handleDatasetDrop}
               handleDatasetChange={handleDatasetChange}

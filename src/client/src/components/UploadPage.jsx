@@ -9,12 +9,10 @@ const UploadPage = () => {
       style={{ minHeight: "100vh", overflow: "hidden" }}
     >
       <Header />
-      <div className="mx-12">
-        <h2 className="mt-24 mb-4 text-2xl font-bold text-accentColor">
-          Upload Page
-        </h2>
+      <div className="mx-12 mt-28">
         <HomeSection1 />
       </div>
+      <div></div>
     </div>
   );
 };

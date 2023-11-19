@@ -1,7 +1,9 @@
 export default function Toggle({ enabled, handleToggleClick }) {
   return (
     <div>
-      <h1 className="text-textColor">Choose Method</h1>
+      <h1 className="text-2xl font-extrabold text-transparent font-arial text-bold bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">
+        Choose Method
+      </h1>
       <div className="flex items-center space-x-4">
         <h1
           className={`text-textColor transform transition-transform duration-500 ${
