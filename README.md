@@ -2,9 +2,9 @@
 Tugas Besar 2 IF2123 Algeo
 
 ## Anggota Kelompok
-Kristo Anugrah  (13522024) <br/>
-Adril Putra Merin (13522068) <br/>
-Berto Richardo Togatorop (13522118) <br/>
+Kristo Anugrah                 (13522024) <br/>
+Adril Putra Merin              (13522068) <br/>
+Berto Richardo Togatorop       (13522118) <br/>
 
 ## Deskripsi Tugas
 Di dalam Tugas Besar 2 ini, mahasiswa diminta untuk mengimplementasikan sistem temu balik gambar yang sudah dijelaskan sebelumnya dengan memanfaatkan Aljabar Vektor dalam bentuk sebuah website, dimana hal ini merupakan pendekatan yang penting dalam dunia pemrosesan data dan pencarian informasi. Dalam konteks ini, aljabar vektor digunakan untuk menggambarkan dan menganalisis data menggunakan pendekatan klasifikasi berbasis konten (Content-Based Image Retrieval atau CBIR), di mana sistem temu balik gambar bekerja dengan mengidentifikasi gambar berdasarkan konten visualnya, seperti warna dan tekstur.
