@@ -4,10 +4,13 @@ import Header from "./Header";
 
 const UploadPage = () => {
   return (
-    <div className="bg-gradient-to-r from-backColor1 to-black" style={{minHeight: "100vh", overflow: "hidden"}}>
+    <div
+      className="bg-gradient-to-r from-backColor1 to-black"
+      style={{ minHeight: "100vh", overflow: "hidden" }}
+    >
       <Header />
-      <div className="container mx-12">
-        <h2 className="mb-4 text-2xl font-bold text-accentColor mt-24">
+      <div className="mx-12">
+        <h2 className="mt-24 mb-4 text-2xl font-bold text-accentColor">
           Upload Page
         </h2>
         <HomeSection1 />

@@ -1,6 +1,6 @@
 @tailwind base;
 @tailwind components;
-@tailwind utility;
+@tailwind utilities;
 
 .App {
   text-align: center;

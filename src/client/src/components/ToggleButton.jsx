@@ -14,6 +14,7 @@ export default function Toggle({ enabled, handleToggleClick }) {
           <label className="relative inline-flex items-center cursor-pointer">
             <input
               type="checkbox"
+              id="checkbox"
               className="sr-only peer"
               checked={enabled}
               readOnly

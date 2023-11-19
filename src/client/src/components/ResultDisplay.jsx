@@ -6,12 +6,15 @@ function Item({ fileComponent }) {
   const simp = fileComponent.simp;
   const percent = simp?.toFixed(2) + "%";
   return (
-    <div className="item-page">
-      <div className="percent-info">
-        <p>{percent}</p>
+    <div className="p-4 m-2 transition-transform rounded bg-[#282c34] hover:transition-transform hover:scale-105">
+      <div className="mb-2 text-center percent-info">
+        <p className="font-bold text-textColor">{percent}</p>
       </div>
-      <br />
-      <img src={filePath} alt="Similar Image" className="item-image" />
+      <img
+        src={filePath}
+        alt="Similar Image"
+        className="item-image w-full h-auto max-h-full max-w-[180px]"
+      />
     </div>
   );
 }
@@ -29,21 +32,28 @@ const ResultDisplay = ({
         <p>banyak gambar {resultCount} </p>
       </div>
       <div>
-        <div>
+        <div className="flex flex-wrap items-center justify-center">
           {currentImages.map((fileImg, index) => (
             <Item key={index} fileComponent={fileImg} />
           ))}
         </div>
       </div>
-      <div>
+      <div className="flex flex-wrap items-center justify-center">
         <Pagination
           count={Math.ceil(resultCount / imagesPerPage)}
           page={currentPage}
           onChange={paginate}
-          color="secondary"
-          shape="rounded"
+          color="primary"
           showFirstButton
           showLastButton
+          sx={{
+            "& .MuiPaginationItem-root": {
+              color: "#D1D7E0",
+              "&:hover": {
+                backgroundColor: "#0066cc", // Set hover background color
+              },
+            },
+          }}
         />
       </div>
     </div>

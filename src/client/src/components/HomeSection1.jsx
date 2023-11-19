@@ -6,6 +6,7 @@ import SearchResult from "./SearchResult";
 import DatasetUpload from "./DatasetUpload";
 import JSZip from "jszip";
 import ResultDisplay from "./ResultDisplay";
+import swal from "sweetalert";
 
 const HomeSection1 = () => {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -14,7 +15,7 @@ const HomeSection1 = () => {
   const [isDatasetUploaded, setIsDatasetUploaded] = useState(false);
   const [files, setFiles] = useState(null);
   const [resultImages, setResultImages] = useState([]);
-  const [imagesPerPage, setImagePerPage] = useState(24);
+  const [imagesPerPage, setImagePerPage] = useState(12);
   const [currentPage, setCurrentPage] = useState(1);
 
   const indexOfLastImage = currentPage * imagesPerPage;
@@ -44,7 +45,9 @@ const HomeSection1 = () => {
             resolve(event.target.result);
           };
           reader.onerror = function (error) {
-            reject(error);
+            swal("errrrr");
+            console.log("eror disini");
+            reject(`Error reading file ${file.name}: ${error.message}`);
           };
 
           reader.readAsArrayBuffer(file);
@@ -64,7 +67,6 @@ const HomeSection1 = () => {
 
       const formData = new FormData();
       formData.append("zipFile", zipBlob, "images.zip");
-      // console.log("something");
       console.log(formData);
 
       const response = await fetch("http://localhost:9000/upload/folder", {
@@ -202,15 +204,17 @@ const HomeSection1 = () => {
           handleSearch={handleSearch}
         />
       </div>
-      {resultImages.length > 0 && (
-        <ResultDisplay
-          resultCount={resultImages.length}
-          paginate={paginate}
-          currentPage={currentPage}
-          currentImages={currentImages}
-          imagesPerPage={imagesPerPage}
-        />
-      )}
+      <div className="flex items-center justify-center min-h-screen">
+        {resultImages.length > 0 && (
+          <ResultDisplay
+            resultCount={resultImages.length}
+            paginate={paginate}
+            currentPage={currentPage}
+            currentImages={currentImages}
+            imagesPerPage={imagesPerPage}
+          />
+        )}
+      </div>
     </div>
   );
 };
