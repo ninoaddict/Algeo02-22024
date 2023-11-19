@@ -31,7 +31,7 @@ const ResultDisplay = ({
       <div>
         <p>banyak gambar {resultCount} </p>
       </div>
-      <div className="flex flex-wrap items-center justify-start">
+      <div className="flex flex-wrap items-center justify-center">
         {currentImages.map((fileImg, index) => (
           <Item key={index} fileComponent={fileImg} />
         ))}

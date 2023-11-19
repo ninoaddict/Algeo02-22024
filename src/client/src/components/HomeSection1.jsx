@@ -3,7 +3,7 @@ import ImageCard from "./ImageCard";
 import ToggleButton from "./ToggleButton";
 import SingleImageButton from "./SingleImageUpload";
 import SearchResult from "./SearchResult";
-import DatasetUpload from "./DatasetUpload";
+import NewDatasetUpload from "./NewDatasetUpload";
 import JSZip from "jszip";
 import ResultDisplay from "./ResultDisplay";
 import swal from "sweetalert";
@@ -77,6 +77,7 @@ const HomeSection1 = () => {
         .then((data) => {
           console.log("Server response: ", data);
           setIsDatasetUploaded(true);
+          console.log(data);
         })
         .catch((error) => {
           console.log("Error: ", error);
@@ -186,7 +187,12 @@ const HomeSection1 = () => {
         />
         <div className="flex flex-col space-y-12">
           <div className="flex flex-col">
-            <DatasetUpload
+            {/* <DatasetUpload
+              handleDatasetChange={handleDatasetChange}
+              handleDatasetUpload={handleDatasetUpload}
+            /> */}
+            <NewDatasetUpload
+              handleDrop={handleDatasetChange}
               handleDatasetChange={handleDatasetChange}
               handleDatasetUpload={handleDatasetUpload}
             />
@@ -194,7 +200,7 @@ const HomeSection1 = () => {
           <ToggleButton enabled={isEnabled} handleToggleClick={handleToggle} />
         </div>
       </div>
-      <div className="">
+      <div>
         <SearchResult
           isDatasetUploaded={isDatasetUploaded}
           isImageChosen={selectedFile ? true : false}
