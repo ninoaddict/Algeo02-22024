@@ -1,14 +1,22 @@
 import React from "react";
+import Button from "@mui/material/Button";
 
-const SearchResult = (handleSearch, isDatasetUploaded) => {
+const SearchResult = ({ handleSearch, isDatasetUploaded, isImageChosen }) => {
   return (
     <div>
-      <button
-        onClick={handleSearch}
-        className="w-full px-4 py-2 rounded bg-backColor2 text-textColor hover:bg-backColor3"
-      >
-        Search
-      </button>
+      {isDatasetUploaded && isImageChosen ? (
+        <Button
+          variant="contained"
+          onClick={handleSearch}
+          className="w-full px-4 py-2 rounded bg-backColor2 text-textColor hover:bg-backColor3"
+        >
+          Search
+        </Button>
+      ) : (
+        <Button variant="contained" disabled>
+          Search
+        </Button>
+      )}
     </div>
   );
 };

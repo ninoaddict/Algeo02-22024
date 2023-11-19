@@ -4,7 +4,7 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        accentColor: "#802BB1",
+        accentColor: " #2196F3",
         backColor1: "#2D283E",
         backColor2: "#564F6F",
         backColor3: "#4C495D",
@@ -13,7 +13,7 @@ module.exports = {
         navColor: "#C5C7C7",
         descColor: "#CCCCCC",
         descColorGrad: "#666666",
-        aboutColor: "rgb(220, 220, 220)"
+        aboutColor: "rgb(220, 220, 220)",
       },
     },
   },
