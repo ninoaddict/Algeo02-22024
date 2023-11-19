@@ -1,22 +1,27 @@
-import React from "react";
+import React, { useRef } from "react";
 
 const SingleImageButton = ({ handleImageChange }) => {
+  const inputRef = useRef(null);
+
+  const handleClick = () => {
+    inputRef.current.click();
+  };
+
   return (
     <div className="flex flex-col">
+      <button
+        className="block w-[120px] p-2 mt-2  text-white  hover:bg-blue-700 bg-blue-500 hover:border-blue-700 border-blue-500 border  rounded-full cursor-pointer focus:outline-none transition-all duration-300 "
+        onClick={handleClick}
+      >
+        choose image
+      </button>
       <input
-        className="block w-[600px] text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
-        aria-describedby="file_input_help"
-        id="file_input"
+        ref={inputRef}
+        className="hidden"
         type="file"
         onChange={handleImageChange}
         accept="image/*"
       />
-      <p
-        className="mt-1 text-xs text-textColor dark:text-backColor3"
-        id="file_input_help"
-      >
-        *PNG or JPG (MAX. 800x400px).
-      </p>
     </div>
   );
 };

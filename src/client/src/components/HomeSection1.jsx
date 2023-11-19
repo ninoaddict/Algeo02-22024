@@ -182,12 +182,13 @@ const HomeSection1 = () => {
           imageUrl={previewUrl}
           handleDrop={handleDrop}
           handleRemove={handleRemove}
+          handleImageChange={handleImageChange}
         />
         <div className="flex flex-col space-y-12">
-          <SingleImageButton
+          {/* <SingleImageButton
             handleImageChange={handleImageChange}
             className="mb-4"
-          />
+          /> */}
           <div className="flex flex-col">
             <DatasetUpload
               handleDatasetChange={handleDatasetChange}
