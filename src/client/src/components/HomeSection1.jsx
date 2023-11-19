@@ -31,6 +31,11 @@ const HomeSection1 = () => {
     setFiles(e.target.files);
   };
 
+  const handleDatasetDrop = (e) => {
+    e.preventDefault();
+    setFiles(e.dataTransfer.files);
+  };
+
   async function handleDatasetUpload() {
     try {
       if (!files || files.length === 0) {
@@ -178,7 +183,7 @@ const HomeSection1 = () => {
 
   return (
     <div>
-      <div className="flex flex-wrap">
+      <div className="flex flex-wrap ">
         <ImageCard
           imageUrl={previewUrl}
           handleDrop={handleDrop}
@@ -187,12 +192,8 @@ const HomeSection1 = () => {
         />
         <div className="flex flex-col space-y-12">
           <div className="flex flex-col">
-            {/* <DatasetUpload
-              handleDatasetChange={handleDatasetChange}
-              handleDatasetUpload={handleDatasetUpload}
-            /> */}
             <NewDatasetUpload
-              handleDrop={handleDatasetChange}
+              handleDatasetDrop={handleDatasetDrop}
               handleDatasetChange={handleDatasetChange}
               handleDatasetUpload={handleDatasetUpload}
             />

@@ -51,11 +51,18 @@ const DatasetUpload = ({ handleDatasetChange }) => {
 };
 
 const NewDatasetUpload = ({
-  handleDrop,
+  handleDatasetDrop,
   handleDatasetChange,
   handleDatasetUpload,
-  // handleDragOver,
 }) => {
+  const handleDragEnter = (e) => {
+    e.preventDefault();
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+  };
+
   const theme = useTheme();
   const [value, setValue] = useState(0);
 
@@ -67,26 +74,23 @@ const NewDatasetUpload = ({
     setValue(index);
   };
 
-  const handleUrlSend = (urlString) => {
-    sendUrlToBackend(urlString);
-  };
-
-  async function sendUrlToBackend(urlString) {
+  async function sendUrlToBackend(e) {
     const apiUrl = "http://localhost:9000/upload/url";
 
     try {
       // Create a JSON object with the URL string
       const data = {
-        url: urlString,
+        urlPath: e.target,
       };
+      console.log(e.target);
 
       // Make a POST request to the backend
       const response = await fetch(apiUrl, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json", // Specify the content type as JSON
-          // Add any additional headers if needed
-        },
+        // headers: {
+        //   "Content-Type": "application/json", // Specify the content type as JSON
+        //   // Add any additional headers if needed
+        // },
         body: JSON.stringify(data), // Convert the data object to a JSON string
       });
 
@@ -134,8 +138,10 @@ const NewDatasetUpload = ({
         </TabPanel>
         <TabPanel value={value} index={1} dir={theme.direction}>
           <div
-            // onDragOver={handleDragOver}
-            onDrop={handleDrop}
+            onDrop={handleDatasetDrop}
+            onDragEnter={handleDragEnter}
+            onDragOver={handleDragEnter}
+            onDragLeave={handleDragLeave}
             style={{
               border: "2px dashed #ccc",
               padding: "20px",
@@ -146,12 +152,12 @@ const NewDatasetUpload = ({
           </div>
         </TabPanel>
         <TabPanel value={value} index={2} dir={theme.direction}>
-          <form>
+          <form onSubmit={sendUrlToBackend}>
             <label>
               Insert Url:
-              <input type="url" name="name" />
+              <input type="url" name="urlPath" />
             </label>
-            <button onClick={handleUrlSend(sendUrlToBackend)}> sendUrl</button>
+            <button> sendUrl</button>
           </form>
         </TabPanel>
       </div>
