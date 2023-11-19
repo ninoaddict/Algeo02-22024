@@ -26,7 +26,7 @@ typedef struct
     double similarity;
 } ResFormat;
 
-vector<vector<int>> hist(16, vector<int>(72, 0));
+vector<vector<int>> hist(16, vector<int>(14, 0));
 
 int getHIndex(double H)
 {
@@ -141,7 +141,9 @@ void img_to_color_vector(string path)
                         S = (delta / cMax);
                     V = cMax;
                     int idxH = getHIndex(H), idxS = getSIndex(S), idxV = getVIndex(V);
-                    hist[idxCnt][idxH * 9 + idxS * 3 + idxV]++;
+                    hist[idxCnt][idxH]++;
+                    hist[idxCnt][8 + idxS]++;
+                    hist[idxCnt][11 + idxV]++;
                 }
             }
             idxCnt++;
@@ -150,23 +152,21 @@ void img_to_color_vector(string path)
     stbi_image_free(img);
 }
 
-int mult[16] = {1,1,1,1,1,4,4,1,1,4,4,1,1,1,1,1};
-
 double simp(vector<vector<int>> cmp){
     double rest = 0;
     for (int i = 0; i < 16; i++){
         double sum = 0;
         double aSum = 0;
         double bSum = 0;
-        for (int j = 0; j < 72; j++){
+        for (int j = 0; j < 14; j++){
             sum += cmp[i][j] * hist[i][j];
             aSum += cmp[i][j] * cmp[i][j];
             bSum += hist[i][j] * hist[i][j];
         }
         double temp = sum/(sqrt(aSum) * sqrt(bSum));
-        rest += temp * mult[i];
+        rest += temp;
     }
-    rest /= 28;
+    rest /= 16;
     return rest;
 }
 

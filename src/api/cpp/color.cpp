@@ -82,7 +82,7 @@ void img_to_color_vector(string path, string name)
 {
     int width, height, temps;
     unsigned char *img = stbi_load(path.c_str(), &width, &height, &temps, 3);
-    vector<vector<int>> hist(16, vector<int>(72, 0));
+    vector<vector<int>> hist(16, vector<int>(14, 0));
     int w[5];
     int h[5];
     w[0] = 0;
@@ -146,7 +146,9 @@ void img_to_color_vector(string path, string name)
                         S = (delta / cMax);
                     V = cMax;
                     int idxH = getHIndex(H), idxS = getSIndex(S), idxV = getVIndex(V);
-                    hist[idxCnt][idxH * 9 + idxS * 3 + idxV]++;
+                    hist[idxCnt][idxH]++;
+                    hist[idxCnt][8 + idxS]++;
+                    hist[idxCnt][11 + idxV]++;
                 }
             }
             idxCnt++;
@@ -186,9 +188,9 @@ int main()
     json jArray;
     {
         std::lock_guard<std::mutex> lock(vectorAdd);
-        for (const auto &kntl : res)
+        for (const auto &hihi : res)
         {
-            jArray.push_back({{"name", kntl.name}, {"vec", kntl.vec}});
+            jArray.push_back({{"name", hihi.name}, {"vec", hihi.vec}});
         }
     }
 

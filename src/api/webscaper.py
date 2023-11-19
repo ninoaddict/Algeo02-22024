@@ -20,9 +20,9 @@ import sys
 # !! PASTIKAN INTERNET ANDA BAIK !!! #
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! #
 
-URL = sys.argv[0] # URL
-pathToFolder = sys.argv[1] # path ke folder, diakhiri '/' (slash)
-numOfThread = int(sys.argv[2]) # jumlah thread, minimal 1
+URL = sys.argv[1] # URL
+pathToFolder = sys.argv[2] # path ke folder, diakhiri '/' (slash)
+numOfThread = int(sys.argv[3]) # jumlah thread, minimal 1
 SCROLL_PAUSE_TIME = 0.5 # waktu di antara scroll
 scrollCount = 5 # berapa kali mau scroll ke bottom page
 timeToImplicitlyWait = 10 # waktu untuk driver menunggu image nge-load
