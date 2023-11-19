@@ -27,18 +27,16 @@ const ResultDisplay = ({
   imagesPerPage,
 }) => {
   return (
-    <div>
+    <div className="flex-grow">
       <div>
         <p>banyak gambar {resultCount} </p>
       </div>
-      <div>
-        <div className="flex flex-wrap items-center justify-center">
-          {currentImages.map((fileImg, index) => (
-            <Item key={index} fileComponent={fileImg} />
-          ))}
-        </div>
+      <div className="flex flex-wrap items-center justify-start">
+        {currentImages.map((fileImg, index) => (
+          <Item key={index} fileComponent={fileImg} />
+        ))}
       </div>
-      <div className="flex flex-wrap items-center justify-center">
+      <div className="flex justify-center">
         <Pagination
           count={Math.ceil(resultCount / imagesPerPage)}
           page={currentPage}

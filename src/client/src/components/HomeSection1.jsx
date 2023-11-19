@@ -177,7 +177,7 @@ const HomeSection1 = () => {
 
   return (
     <div>
-      <div className="flex items-start justify-between">
+      <div className="flex flex-wrap">
         <ImageCard
           imageUrl={previewUrl}
           handleDrop={handleDrop}
@@ -185,27 +185,23 @@ const HomeSection1 = () => {
           handleImageChange={handleImageChange}
         />
         <div className="flex flex-col space-y-12">
-          {/* <SingleImageButton
-            handleImageChange={handleImageChange}
-            className="mb-4"
-          /> */}
           <div className="flex flex-col">
             <DatasetUpload
               handleDatasetChange={handleDatasetChange}
               handleDatasetUpload={handleDatasetUpload}
             />
           </div>
+          <ToggleButton enabled={isEnabled} handleToggleClick={handleToggle} />
         </div>
       </div>
-      <div className="flex flex-col items-center justify-center">
-        <ToggleButton enabled={isEnabled} handleToggleClick={handleToggle} />
+      <div className="">
         <SearchResult
           isDatasetUploaded={isDatasetUploaded}
           isImageChosen={selectedFile ? true : false}
           handleSearch={handleSearch}
         />
       </div>
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex min-h-screen item-center">
         {resultImages.length > 0 && (
           <ResultDisplay
             resultCount={resultImages.length}
