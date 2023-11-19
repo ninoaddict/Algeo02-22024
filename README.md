@@ -19,7 +19,6 @@ Direktori tugas besar ini memiliki struktur file sebagai berikut:
 ├───doc                                 # Laporan tugas besar (dokumentasi)
 ├───src                                 # Source code tugas besar
 │   ├───api
-│   │      bin
 |   |      cpp
 |   |      ...
 │   └───client
