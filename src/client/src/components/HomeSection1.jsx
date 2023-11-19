@@ -4,19 +4,22 @@ import ToggleButton from "./ToggleButton";
 import SingleImageButton from "./SingleImageUpload";
 import SearchResult from "./SearchResult";
 import NewDatasetUpload from "./NewDatasetUpload";
-import JSZip from "jszip";
+import JSZip, { file, files } from "jszip";
 import ResultDisplay from "./ResultDisplay";
-import swal from "sweetalert";
+import Swal from 'sweetalert2';
+import axios from 'axios';
 
 const HomeSection1 = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [isEnabled, setIsEnabled] = useState(false);
   const [isDatasetUploaded, setIsDatasetUploaded] = useState(false);
-  const [files, setFiles] = useState(null);
+  const [files, setFiles] = useState([]);
   const [resultImages, setResultImages] = useState([]);
   const [imagesPerPage, setImagePerPage] = useState(12);
   const [currentPage, setCurrentPage] = useState(1);
+  const [time, setTime] = useState(0);
+  const [waiting, setWaiting] = useState(false);
 
   const indexOfLastImage = currentPage * imagesPerPage;
   const indexOfFirstImage = indexOfLastImage - imagesPerPage;
@@ -36,61 +39,77 @@ const HomeSection1 = () => {
     setFiles(e.dataTransfer.files);
   };
 
-  async function handleDatasetUpload() {
-    try {
-      if (!files || files.length === 0) {
-        console.error("No files selected");
-        return;
-      }
+  const readFileAsArrayBuffer = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
 
-      const readFile = (file) => {
-        return new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = function (event) {
-            resolve(event.target.result);
-          };
-          reader.onerror = function (error) {
-            swal("errrrr");
-            console.log("eror disini");
-            reject(`Error reading file ${file.name}: ${error.message}`);
-          };
-
-          reader.readAsArrayBuffer(file);
-        });
+      reader.onload = () => {
+        resolve(reader.result);
       };
 
-      const zip = new JSZip();
+      reader.onerror = (error) => {
+        reject(error);
+      };
 
-      for (let i = 0; i < files.length; i++) {
-        const fileName = files[i];
-        const content = await readFile(fileName);
-        zip.file(fileName.name, content);
+      reader.readAsArrayBuffer(file);
+    });
+  };
+
+  const handleDatasetUpload = async (e) => {
+    e.preventDefault();
+    if (!files || files.length === 0) {
+      Swal.fire({
+        icon: "warning",
+        title: "No dataset uploaded!"
+      });
+      return;
+    }
+
+    const startTime = performance.now();
+    const zip = new JSZip();
+
+    setWaiting(true);
+
+    try {
+      for (const file of files){
+        const arrayBuffer = await readFileAsArrayBuffer(file);
+        zip.file(file.name, arrayBuffer);
       }
 
-      // Generate the zip file
-      const zipBlob = await zip.generateAsync({ type: "blob" });
-
+      const content = await zip.generateAsync({type: 'blob'});
       const formData = new FormData();
-      formData.append("zipFile", zipBlob, "images.zip");
-      console.log(formData);
+      formData.append('zipFile', content);      
 
-      const response = await fetch("http://localhost:9000/upload/folder", {
-        method: "POST",
-        body: formData,
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          console.log("Server response: ", data);
-          setIsDatasetUploaded(true);
-          console.log(data);
+      const response = await axios.post("http://localhost:9000/upload/folder", formData, {timeout: 20000})
+        .then(response => {
+          console.log(response);
         })
-        .catch((error) => {
-          console.log("Error: ", error);
-        });
+        .catch(error => {
+          Swal.fire({
+            icon: "error",
+            title: "Oops...",
+            text: "Error uploading dataset!"
+          });
+        })
+        .finally(() => {
+          setWaiting(false);
+          setFiles([]);
+          const endTime = performance.now();
+          const diffTime = (endTime - startTime) / 1000;
+          setTime(diffTime);
+          Swal.fire({
+            icon: "success",
+            title: "Folder uploaded in " + diffTime.toFixed(2) + " second"
+          });
+        })
     } catch (error) {
-      console.error("Error uploading images:", error);
-    }
-  }
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Error uploading dataset!"
+      });
+    } 
+  };
 
   // Image Handler
   const handleImageChange = (event) => {
