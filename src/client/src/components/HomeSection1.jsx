@@ -97,6 +97,7 @@ const HomeSection1 = () => {
         .finally(() => {
           setWaiting(false);
           setFiles([]);
+          setIsDatasetUploaded(true);
           const endTime = performance.now();
           const diffTime = (endTime - startTime) / 1000;
           setTime(diffTime);
