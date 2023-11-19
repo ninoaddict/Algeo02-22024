@@ -6,8 +6,8 @@ import SearchResult from "./SearchResult";
 import NewDatasetUpload from "./NewDatasetUpload";
 import JSZip, { file, files } from "jszip";
 import ResultDisplay from "./ResultDisplay";
-import Swal from 'sweetalert2';
-import axios from 'axios';
+import Swal from "sweetalert2";
+import axios from "axios";
 
 const HomeSection1 = () => {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -39,18 +39,9 @@ const HomeSection1 = () => {
     setFiles(e.dataTransfer.files);
   };
 
-<<<<<<< HEAD
-  async function handleDatasetUpload(e) {
-    try {
-      if (!files || files.length === 0) {
-        console.error("No files selected");
-        return;
-      }
-=======
   const readFileAsArrayBuffer = (file) => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
->>>>>>> a613fb110e675088bdcc052cd7ed2c6769afbe77
 
       reader.onload = () => {
         resolve(reader.result);
@@ -69,7 +60,7 @@ const HomeSection1 = () => {
     if (!files || files.length === 0) {
       Swal.fire({
         icon: "warning",
-        title: "No dataset uploaded!"
+        title: "No dataset uploaded!",
       });
       return;
     }
@@ -80,24 +71,27 @@ const HomeSection1 = () => {
     setWaiting(true);
 
     try {
-      for (const file of files){
+      for (const file of files) {
         const arrayBuffer = await readFileAsArrayBuffer(file);
         zip.file(file.name, arrayBuffer);
       }
 
-      const content = await zip.generateAsync({type: 'blob'});
+      const content = await zip.generateAsync({ type: "blob" });
       const formData = new FormData();
-      formData.append('zipFile', content);      
+      formData.append("zipFile", content);
 
-      const response = await axios.post("http://localhost:9000/upload/folder", formData, {timeout: 20000})
-        .then(response => {
+      const response = await axios
+        .post("http://localhost:9000/upload/folder", formData, {
+          timeout: 20000,
+        })
+        .then((response) => {
           console.log(response);
         })
-        .catch(error => {
+        .catch((error) => {
           Swal.fire({
             icon: "error",
             title: "Oops...",
-            text: "Error uploading dataset!"
+            text: "Error uploading dataset!",
           });
         })
         .finally(() => {
@@ -108,16 +102,16 @@ const HomeSection1 = () => {
           setTime(diffTime);
           Swal.fire({
             icon: "success",
-            title: "Folder uploaded in " + diffTime.toFixed(2) + " second"
+            title: "Folder uploaded in " + diffTime.toFixed(2) + " second",
           });
-        })
+        });
     } catch (error) {
       Swal.fire({
         icon: "error",
         title: "Oops...",
-        text: "Error uploading dataset!"
+        text: "Error uploading dataset!",
       });
-    } 
+    }
   };
 
   // Image Handler

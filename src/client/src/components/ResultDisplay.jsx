@@ -29,7 +29,7 @@ const ResultDisplay = ({
   return (
     <div className="flex-grow">
       <div>
-        <p>banyak gambar {resultCount} </p>
+        <p> Mendapatkan {resultCount} gambar </p>
       </div>
       <div className="flex flex-wrap items-center justify-center">
         {currentImages.map((fileImg, index) => (
