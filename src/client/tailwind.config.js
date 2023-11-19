@@ -12,7 +12,8 @@ module.exports = {
         headerC: "#45a29e",
         navColor: "#C5C7C7",
         descColor: "#CCCCCC",
-        descColorGrad: "#666666"
+        descColorGrad: "#666666",
+        aboutColor: "rgb(220, 220, 220)"
       },
     },
   },
