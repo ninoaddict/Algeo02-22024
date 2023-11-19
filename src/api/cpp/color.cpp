@@ -27,7 +27,7 @@ std::mutex vectorAdd;
 typedef struct
 {
     string name;
-    vector<int> vec;
+    vector<vector<int>> vec;
 } SendJson;
 
 vector<SendJson> res;
@@ -83,7 +83,6 @@ void img_to_color_vector(string path, string name)
     int width, height, temps;
     unsigned char *img = stbi_load(path.c_str(), &width, &height, &temps, 3);
     vector<vector<int>> hist(16, vector<int>(72, 0));
-    vector <int> histRes(72, 0);
     int w[5];
     int h[5];
     w[0] = 0;
@@ -153,21 +152,12 @@ void img_to_color_vector(string path, string name)
             idxCnt++;
         }
     }
-    int nino;
-    for (int i = 0; i < 72; i++){
-        nino = 0;
-        for (int j = 0; j < 16; j++){
-            nino += hist[j][i];
-        }
-        nino /= 16;
-        histRes[i] = nino;
-    }
     stbi_image_free(img);
     std::lock_guard<std::mutex> lock(vectorAdd);
     SendJson temp;
     // temp.name = path.substr(22);
     temp.name = name;
-    temp.vec = histRes;
+    temp.vec = hist;
     res.push_back(temp);
 }
 
@@ -184,21 +174,21 @@ int main()
         pathNames.push_back(entry.path().filename().string());
     }
 
-    pool.push_loop(paths.size(),
-                   [&paths, &pathNames](const int a, const int b)
-                   {
-                       for (int i = a; i < b; i++)
-                       {
-                           img_to_color_vector(paths[i], pathNames[i]);
-                       }
-                   });
+    pool.push_loop(paths.size(), 
+        [&paths, &pathNames](const int a, const int b)
+        {
+            for (int i = a; i < b; i++){
+                img_to_color_vector(paths[i], pathNames[i]);
+            }
+        }
+    );
     pool.wait_for_tasks();
     json jArray;
     {
         std::lock_guard<std::mutex> lock(vectorAdd);
-        for (const auto &rip : res)
+        for (const auto &kntl : res)
         {
-            jArray.push_back({{"name", rip.name}, {"vec", rip.vec}});
+            jArray.push_back({{"name", kntl.name}, {"vec", kntl.vec}});
         }
     }
 
