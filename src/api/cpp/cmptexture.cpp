@@ -113,16 +113,22 @@ void img_to_texture_vector(string path, string name){
             double contrast = 0.0;
             double homogeneity = 0.0;
             double entropy = 0.0;
+            double dissimilarity = 0.0;
+            double ansm = 0.0;
             for (int i = 0; i < channel; ++i) {
                 for (int j = 0; j < channel; ++j) {
                     contrast += hist[i][j] * (i - j) * (i - j);
                     homogeneity += (hist[i][j] / (1 + (i - j) * (i - j)));
                     if (hist[i][j] != 0.0) entropy -= hist[i][j] * log(hist[i][j]);
+                    dissimilarity += hist[i][j] * abs(i - j);
+                    ansm += hist[i][j] * hist[i][j];
                 }
             }
             done.push_back(contrast);
             done.push_back(homogeneity);
             done.push_back(entropy);
+            done.push_back(dissimilarity);
+            done.push_back(ansm);
         }
     }
     indexedImage.name = name;
